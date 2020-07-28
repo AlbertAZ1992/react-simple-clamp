@@ -22,3 +22,4 @@ const FCCounter: React.FC<Props> = (properties) => {
 };
 
 export default FCCounter;
+// export default {};

@@ -7,30 +7,33 @@ import { terser } from 'rollup-plugin-terser';
 import babel from '@rollup/plugin-babel';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import typescript from '@rollup/plugin-typescript';
+import typescript from 'rollup-plugin-typescript2';
 
-import pkg from './package.json';
+import pkg from '../package.json';
+
+const extensions = ['.js', '.jsx', '.ts', '.tsx'];
 
 const options = {
   input: 'src/index.tsx',
   output: [
     {
-      file: path.resolve(__dirname, pkg.main),
+      file: path.resolve(__dirname, '..', pkg.main),
       format: 'cjs',
     },
     {
-      file: path.resolve(__dirname, pkg.module),
+      file: path.resolve(__dirname, '..', pkg.module),
       format: 'es',
     },
     {
-      file: path.resolve(__dirname, pkg.unpkg),
+      file: path.resolve(__dirname, '..', pkg.unpkg),
       format: 'umd',
+      name: 'index',
       plugins: [terser()],
     },
   ],
   external: ['react', 'react-dom'],
   plugins: [
-    nodeResolve({ extensions: ['.js', '.jsx', '.ts', '.tsx', '.less'] }),
+    nodeResolve({ extensions }),
     commonjs(),
     clear({
       targets: ['dist', 'es', 'lib'],
@@ -41,13 +44,12 @@ const options = {
       extensions: ['css', 'less'],
       plugins: [autoprefixer],
     }),
-    typescript({
-      useTsconfigDeclarationDir: true,
-      objectHashIgnoreUnknownHack: true,
-    }),
+    typescript(),
     babel({
-      runtimeHelpers: true,
+      extensions,
+      include: ['src/**/*'],
       exclude: 'node_modules/**',
+      babelHelpers: 'runtime',
     }),
     progress({ clearLine: false }),
   ],

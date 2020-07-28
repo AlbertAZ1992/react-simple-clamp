@@ -53,3 +53,8 @@ node_modules/
 
 # Local History for Visual Studio Code
 .history/
+
+dist
+es
+example
+lib

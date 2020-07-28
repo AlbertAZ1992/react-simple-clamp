@@ -2,16 +2,17 @@ module.exports = {
   presets: [
     [
       '@babel/preset-env',
-      {
-        modules: false,
-        useBuiltIns: 'usage',
-        corejs: '3',
-        targets: {
-          ie: 10,
-        },
-      },
+      // {
+      //   modules: false,
+      //   useBuiltIns: 'usage',
+      //   corejs: '3',
+      //   targets: {
+      //     ie: 10,
+      //   },
+      // },
     ],
     '@babel/preset-react',
+    '@babel/preset-typescript',
   ],
   plugins: [
     [
@@ -24,5 +25,6 @@ module.exports = {
     ['@babel/plugin-proposal-object-rest-spread', { useBuiltIns: true }],
     '@babel/plugin-transform-react-jsx',
     '@babel/plugin-transform-runtime',
+    '@babel/plugin-transform-typescript',
   ],
 };
