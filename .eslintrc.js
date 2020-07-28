@@ -49,6 +49,18 @@ module.exports = {
         js: 'never',
       },
     ],
+    'import/no-extraneous-dependencies': [
+      ERROR,
+      {
+        devDependencies: true,
+      },
+    ],
+    'react/jsx-filename-extension': [
+      2,
+      {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+    ],
     'func-names': OFF,
     'lines-between-class-members': OFF,
     'max-classes-per-file': OFF,
@@ -59,6 +71,8 @@ module.exports = {
     'no-underscore-dangle': OFF,
     'no-unused-expressions': OFF,
     'no-useless-constructor': OFF,
+    'no-empty-function': OFF,
+    '@typescript-eslint/no-empty-function': OFF,
     '@typescript-eslint/no-useless-constructor': ERROR,
   },
   ignorePatterns: ['*.js'],

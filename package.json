@@ -2,7 +2,9 @@
   "name": "react-simple-clamp",
   "version": "1.0.0",
   "description": "Clamping multiline text with ease",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "unpkg": "dist/demo.min.js",
   "repository": "https://github.com/AlbertAZ1992/react-simple-clamp.git",
   "author": {
     "name": "AlbertAZ1992",
@@ -13,6 +15,9 @@
   "devDependencies": {
     "@commitlint/cli": "^9.1.1",
     "@commitlint/config-conventional": "^9.1.1",
+    "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "@rollup/plugin-typescript": "^5.0.2",
     "@types/react": "^16.9.43",
     "@types/react-dom": "^16.9.8",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
@@ -32,6 +37,10 @@
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "rollup": "^2.23.0",
+    "rollup-plugin-terser": "^6.1.0",
     "stylelint": "^13.6.1",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-standard": "^20.0.0",
@@ -43,12 +52,15 @@
     "lint": "yarn run lint-eslint && yarn run lint-stylelint",
     "lint-eslint": "eslint -c .eslintrc.js --ext .ts,.tsx,.js {src,scripts}/**/*.{ts,tsx,js}",
     "lint-stylelint": "stylelint --config .stylelintrc.json src/**/*.less --syntax less",
-    "test": "echo 'skip test...'"
+    "test": "echo 'skip test...'",
+    "dev": "rollup -w -c ./scripts/dev.js",
+    "build": "rollup -c ./scripts/rollup.config.js"
   },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
       "commit-msg": "commitlint -c .commitlintrc.js -E HUSKY_GIT_PARAMS"
     }
-  }
+  },
+  "typings": "lib/main.d.ts"
 }
