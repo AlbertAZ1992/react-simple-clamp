@@ -1,25 +1,34 @@
 import React from 'react';
 
-type Props = {
-  label: string;
-  count: number;
+interface Props {
+  tag: string;
+  autoresize: boolean;
+  maxLines: number;
+  maxHeight: number | string;
+  ellipsis: string;
   onIncrement: () => void;
+  expanded: boolean;
+  content: string;
+}
+
+const defaultProps: Props = {
+  tag: 'div',
+  autoresize: false,
+  maxLines: 5,
+  maxHeight: 120,
+  ellipsis: '...',
+  onIncrement: () => {},
+  expanded: false,
+  content: '',
 };
 
-const FCCounter: React.FC<Props> = (properties) => {
-  const { label, count, onIncrement } = properties;
-
-  return (
-    <div>
-      <span>
-        {label}: {count}
-      </span>
-      <div role="button" tabIndex={0} onClick={() => {}} onKeyDown={onIncrement}>
-        Increment
-      </div>
-    </div>
-  );
+const ReactSimpleClamp: React.FC<Props> = (properties) => {
+  const { tag, content } = properties;
+  const contentWrapper = <span>{content}</span>;
+  const linesWrapper = <span style={{ boxShadow: 'transparent 0 0' }}>{contentWrapper}</span>;
+  return React.createElement(tag, { style: { overflow: 'hidden' } }, linesWrapper);
 };
 
-export default FCCounter;
-// export default {};
+ReactSimpleClamp.defaultProps = defaultProps;
+
+export default ReactSimpleClamp;

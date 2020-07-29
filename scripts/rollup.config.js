@@ -1,13 +1,14 @@
-const path = require('path');
-const autoprefixer = require('autoprefixer');
-const postcss = require('rollup-plugin-postcss');
-const clear = require('rollup-plugin-clear');
-const progress = require('rollup-plugin-progress');
+import path from 'path';
+import autoprefixer from 'autoprefixer';
+import postcss from 'rollup-plugin-postcss';
+import clear from 'rollup-plugin-clear';
+import progress from 'rollup-plugin-progress';
 import { terser } from 'rollup-plugin-terser';
 import babel from '@rollup/plugin-babel';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
+import sucrase from '@rollup/plugin-sucrase';
 
 import pkg from '../package.json';
 
@@ -45,9 +46,13 @@ const options = {
       plugins: [autoprefixer],
     }),
     typescript(),
+    sucrase({
+      exclude: ['node_modules/**'],
+      transforms: ['typescript', 'jsx'],
+    }),
     babel({
       extensions,
-      include: ['src/**/*'],
+      include: ['src/**/*', 'example/**/*'],
       exclude: 'node_modules/**',
       babelHelpers: 'runtime',
     }),
