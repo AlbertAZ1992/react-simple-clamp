@@ -76,7 +76,7 @@ module.exports = {
     '@typescript-eslint/no-empty-function': OFF,
     '@typescript-eslint/no-useless-constructor': ERROR,
   },
-  ignorePatterns: ['*.js'],
+  ignorePatterns: ['example/**/*'],
   overrides: [
     {
       files: ['**/*.d.ts'],
