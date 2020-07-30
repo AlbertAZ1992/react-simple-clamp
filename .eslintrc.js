@@ -72,6 +72,7 @@ module.exports = {
     'no-unused-expressions': OFF,
     'no-useless-constructor': OFF,
     'no-empty-function': OFF,
+    'unicorn/prevent-abbreviations': OFF,
     '@typescript-eslint/no-empty-function': OFF,
     '@typescript-eslint/no-useless-constructor': ERROR,
   },
