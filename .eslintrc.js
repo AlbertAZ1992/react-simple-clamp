@@ -61,6 +61,7 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     ],
+    'react/jsx-props-no-spreading': OFF,
     'func-names': OFF,
     'lines-between-class-members': OFF,
     'max-classes-per-file': OFF,
@@ -73,7 +74,20 @@ module.exports = {
     'no-unused-expressions': OFF,
     'no-useless-constructor': OFF,
     'no-empty-function': OFF,
+    'unicorn/no-null': OFF,
     'unicorn/prevent-abbreviations': OFF,
+    'unicorn/no-process-exit': OFF,
+    'unicorn/filename-case': [
+      ERROR,
+      {
+        cases: {
+          kebabCase: false,
+          camelCase: true,
+          snakeCase: false,
+          pascalCase: true,
+        },
+      },
+    ],
     '@typescript-eslint/no-empty-function': OFF,
     '@typescript-eslint/no-useless-constructor': ERROR,
   },
