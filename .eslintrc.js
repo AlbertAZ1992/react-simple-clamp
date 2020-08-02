@@ -66,6 +66,7 @@ module.exports = {
     'max-classes-per-file': OFF,
     'no-console': OFF,
     'no-empty': OFF,
+    'no-bitwise': OFF,
     'no-param-reassign': OFF,
     'no-plusplus': OFF,
     'no-underscore-dangle': OFF,

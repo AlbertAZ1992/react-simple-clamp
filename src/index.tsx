@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export interface ReactSimpleClampProps {
-  tag?: string;
   autoresize?: boolean;
   maxLines: number;
   maxHeight: number | string;
@@ -10,18 +9,39 @@ export interface ReactSimpleClampProps {
   content: string;
 }
 
-function useClamped(content: string, offset: number | null) {
-  const [clamped, setClamped] = useState<boolean>(false);
+const RENDER_STATE = {
+  START: 'START',
+  DONE: 'DONE',
+};
 
-  useEffect(() => {
-    if (!content) {
-      setClamped(false);
-    } else {
-      setClamped(offset !== content.length);
-    }
-  }, [content, offset]);
+const RENDER_LOCATE_STATE = {
+  START: 'START',
+  DONE: 'DONE',
+};
 
-  return clamped;
+const RENDER_FILL_STATE = {
+  ASCEND: 'ASCEND ',
+  DESCEND: 'DESCEND ',
+  DONE: 'DONE',
+};
+
+function isOverFlow(
+  maxLines: number,
+  screenMaxHeight: string,
+  tagRef: React.RefObject<HTMLDivElement>,
+  contentRef: React.RefObject<HTMLElement>,
+): boolean {
+  const contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
+  if (!maxLines && !screenMaxHeight) {
+    return false;
+  }
+  if (maxLines && contentLines > maxLines) {
+    return true;
+  }
+  if (screenMaxHeight && tagRef.current && tagRef.current.scrollHeight > tagRef.current.offsetHeight) {
+    return true;
+  }
+  return false;
 }
 
 function useScreenMaxHeight(internalExpanded: boolean, maxHeight: number | string): string {
@@ -40,81 +60,83 @@ function useScreenMaxHeight(internalExpanded: boolean, maxHeight: number | strin
   return screenMaxHeight;
 }
 
-function useOverflowed(
-  maxLines: number,
-  maxHeight: string,
-  tagRef: React.MutableRefObject<HTMLElement>,
-  contentRef: React.MutableRefObject<HTMLElement>,
-): boolean {
-  const [overflowed, setOverflowed] = useState<boolean>(false);
-  const contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
-
-  useEffect(() => {
-    if (!maxLines && !maxHeight) {
-      setOverflowed(false);
-    } else if (maxLines && contentLines > maxLines) {
-      setOverflowed(true);
-    } else if (maxHeight && tagRef.current.scrollHeight > tagRef.current.offsetHeight) {
-      setOverflowed(true);
-    } else {
-      setOverflowed(false);
-    }
-  }, [maxLines, maxHeight, tagRef, contentLines]);
-  return overflowed;
-}
-
-function useScreenContent(content: string, offset: number, clamped: boolean, ellipsis: string): string {
+function useScreenContent(content: string, offset: number, contentLength: number, ellipsis: string): string {
   const [screenContent, setScreenContent] = useState<string>(content);
 
   useEffect(() => {
-    setScreenContent(clamped ? `${content.slice(0, offset)}${ellipsis}` : content);
-  }, [content, offset, clamped, ellipsis]);
+    if (!contentLength) {
+      setScreenContent(content);
+    } else if (offset !== contentLength) {
+      setScreenContent(`${content.slice(0, offset)}${ellipsis}`);
+    }
+  }, [content, offset, contentLength, ellipsis]);
 
   return screenContent;
 }
 
 const ReactSimpleClamp: React.FC<ReactSimpleClampProps> = (properties) => {
-  const { tag = 'div', ellipsis = '...', content, maxHeight, maxLines, expanded } = properties;
+  const { ellipsis = '...', content, maxHeight, maxLines, expanded } = properties;
+  const tagRef = useRef() as React.RefObject<HTMLDivElement>;
+  const contentRef = useRef() as React.RefObject<HTMLElement>;
+  const contentLength = content.length || 0;
 
-  const tagRef = useRef() as React.MutableRefObject<HTMLElement>;
-  const contentRef = useRef() as React.MutableRefObject<HTMLElement>;
-
-  const [offset, setOffset] = useState<number>(content.length || 0);
+  const [offset, setOffset] = useState<number>(contentLength);
   const [internalExpanded, setInternalExpanded] = useState<boolean>(expanded);
+  const [renderState, setRenderState] = useState<string>(RENDER_STATE.DONE);
+  const [renderLocateState, setRenderLocateState] = useState<string>(RENDER_LOCATE_STATE.DONE);
+  const [renderFillState, setRenderFillState] = useState<string>(RENDER_FILL_STATE.DONE);
 
-  const clamped = useClamped(content, offset);
-  const screenContent = useScreenContent(content, offset, clamped, ellipsis);
+  const screenContent = useScreenContent(content, offset, contentLength, ellipsis);
   const screenMaxHeight = useScreenMaxHeight(internalExpanded, maxHeight);
-  const overFlowed = useOverflowed(maxLines, screenMaxHeight, tagRef, contentRef);
-
-  const search = useCallback(
-    (from = 0, to = offset) => {
-      const contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
-      if (to - from <= 3) {
-        while ((!overFlowed || contentLines < 2) && offset < content.length) {
-          setOffset(offset + 1);
-        }
-        while (overFlowed && contentLines > 1 && offset > 0) {
-          setOffset(offset - 1);
-        }
-        return;
-      }
-      const target = Math.floor((to + from) / 2);
-      setOffset(target);
-      if (overFlowed) {
-        search(from, target);
-      } else {
-        search(target, to);
-      }
-    },
-    [overFlowed, offset, content, contentRef],
-  );
 
   useEffect(() => {
-    if (!internalExpanded && (overFlowed || clamped)) {
-      search();
+    if (!internalExpanded && isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) && renderState === 'done') {
+      setRenderState(RENDER_STATE.START);
     }
-  }, [clamped, overFlowed, internalExpanded, search]);
+  }, [maxLines, maxHeight, ellipsis, internalExpanded, renderState, screenMaxHeight]);
+
+  useEffect(() => {
+    if (renderState === RENDER_STATE.START) {
+      setRenderLocateState(RENDER_LOCATE_STATE.START);
+    }
+  }, [renderState, contentLength]);
+
+  useEffect(() => {
+    const contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
+
+    if (renderLocateState === RENDER_LOCATE_STATE.START) {
+      if (isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef)) {
+        // need dec
+        setOffset((prevOffset) => ~~(prevOffset / 2));
+      } else if (contentLines !== maxLines) {
+        // need add
+        setOffset((prevOffset) => ~~(prevOffset + prevOffset / 2));
+      } else {
+        setRenderLocateState(RENDER_LOCATE_STATE.DONE);
+        setRenderFillState(RENDER_FILL_STATE.ASCEND);
+      }
+    }
+  }, [renderLocateState, maxLines, contentRef, screenMaxHeight, screenContent]);
+
+  useEffect(() => {
+    const contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
+    if (renderFillState === RENDER_FILL_STATE.ASCEND) {
+      if ((!isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) || contentLines < 2) && offset < contentLength) {
+        setOffset(offset + 1);
+        console.log(RENDER_FILL_STATE.ASCEND);
+      } else {
+        setRenderFillState(RENDER_FILL_STATE.DESCEND);
+      }
+    } else if (renderFillState === RENDER_FILL_STATE.DESCEND) {
+      if (isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) && contentLines > 1 && offset > 0) {
+        setOffset(offset - 1);
+        console.log(RENDER_FILL_STATE.DESCEND);
+      } else {
+        setRenderFillState(RENDER_FILL_STATE.DONE);
+        setRenderState(RENDER_STATE.DONE);
+      }
+    }
+  }, [renderFillState, contentLength, offset, contentRef, maxLines, screenMaxHeight]);
 
   const contentWrapper = <span>{screenContent}</span>;
   const linesWrapper = (
@@ -122,7 +144,11 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps> = (properties) => {
       {contentWrapper}
     </span>
   );
-  return React.createElement(tag, { style: { overflow: 'hidden' }, ref: { tagRef } }, linesWrapper);
+  return (
+    <div ref={tagRef} style={{ overflow: 'hidden' }}>
+      {linesWrapper}
+    </div>
+  );
 };
 
 export default ReactSimpleClamp;

@@ -904,31 +904,43 @@
   var _this = undefined;
 
   var _jsxFileName = '/Users/albertaz/Documents/github/react-simple-clamp/src/index.tsx';
+  var RENDER_STATE = {
+    START: 'START',
+    DONE: 'DONE',
+  };
+  var RENDER_LOCATE_STATE = {
+    START: 'START',
+    DONE: 'DONE',
+  };
+  var RENDER_FILL_STATE = {
+    ASCEND: 'ASCEND ',
+    DESCEND: 'DESCEND ',
+    DONE: 'DONE',
+  };
 
-  function useClamped(content, offset) {
-    var _useState = React.useState(false),
-      _useState2 = slicedToArray(_useState, 2),
-      clamped = _useState2[0],
-      setClamped = _useState2[1];
+  function isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) {
+    var contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
 
-    React.useEffect(
-      function () {
-        if (!content) {
-          setClamped(false);
-        } else {
-          setClamped(offset !== content.length);
-        }
-      },
-      [content, offset],
-    );
-    return clamped;
+    if (!maxLines && !screenMaxHeight) {
+      return false;
+    }
+
+    if (maxLines && contentLines > maxLines) {
+      return true;
+    }
+
+    if (screenMaxHeight && tagRef.current && tagRef.current.scrollHeight > tagRef.current.offsetHeight) {
+      return true;
+    }
+
+    return false;
   }
 
   function useScreenMaxHeight(internalExpanded, maxHeight) {
-    var _useState3 = React.useState(''),
-      _useState4 = slicedToArray(_useState3, 2),
-      screenMaxHeight = _useState4[0],
-      setScreenMaxHeight = _useState4[1];
+    var _useState = React.useState(''),
+      _useState2 = slicedToArray(_useState, 2),
+      screenMaxHeight = _useState2[0],
+      setScreenMaxHeight = _useState2[1];
 
     React.useEffect(
       function () {
@@ -945,49 +957,27 @@
     return screenMaxHeight;
   }
 
-  function useOverflowed(maxLines, maxHeight, tagRef, contentRef) {
-    var _useState5 = React.useState(false),
-      _useState6 = slicedToArray(_useState5, 2),
-      overflowed = _useState6[0],
-      setOverflowed = _useState6[1];
+  function useScreenContent(content, offset, contentLength, ellipsis) {
+    var _useState3 = React.useState(content),
+      _useState4 = slicedToArray(_useState3, 2),
+      screenContent = _useState4[0],
+      setScreenContent = _useState4[1];
 
-    var contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
     React.useEffect(
       function () {
-        if (!maxLines && !maxHeight) {
-          setOverflowed(false);
-        } else if (maxLines && contentLines > maxLines) {
-          setOverflowed(true);
-        } else if (maxHeight && tagRef.current.scrollHeight > tagRef.current.offsetHeight) {
-          setOverflowed(true);
-        } else {
-          setOverflowed(false);
+        if (!contentLength) {
+          setScreenContent(content);
+        } else if (offset !== contentLength) {
+          setScreenContent(''.concat(content.slice(0, offset)).concat(ellipsis));
         }
       },
-      [maxLines, maxHeight, tagRef, contentLines],
-    );
-    return overflowed;
-  }
-
-  function useScreenContent(content, offset, clamped, ellipsis) {
-    var _useState7 = React.useState(content),
-      _useState8 = slicedToArray(_useState7, 2),
-      screenContent = _useState8[0],
-      setScreenContent = _useState8[1];
-
-    React.useEffect(
-      function () {
-        setScreenContent(clamped ? ''.concat(content.slice(0, offset)).concat(ellipsis) : content);
-      },
-      [content, offset, clamped, ellipsis],
+      [content, offset, contentLength, ellipsis],
     );
     return screenContent;
   }
 
   var ReactSimpleClamp = function ReactSimpleClamp(properties) {
-    var _properties$tag = properties.tag,
-      tag = _properties$tag === void 0 ? 'div' : _properties$tag,
-      _properties$ellipsis = properties.ellipsis,
+    var _properties$ellipsis = properties.ellipsis,
       ellipsis = _properties$ellipsis === void 0 ? '...' : _properties$ellipsis,
       content = properties.content,
       maxHeight = properties.maxHeight,
@@ -995,57 +985,99 @@
       expanded = properties.expanded;
     var tagRef = React.useRef();
     var contentRef = React.useRef();
+    var contentLength = content.length || 0;
 
-    var _useState9 = React.useState(content.length || 0),
+    var _useState5 = React.useState(contentLength),
+      _useState6 = slicedToArray(_useState5, 2),
+      offset = _useState6[0],
+      setOffset = _useState6[1];
+
+    var _useState7 = React.useState(expanded),
+      _useState8 = slicedToArray(_useState7, 2),
+      internalExpanded = _useState8[0],
+      setInternalExpanded = _useState8[1];
+
+    var _useState9 = React.useState(RENDER_STATE.DONE),
       _useState10 = slicedToArray(_useState9, 2),
-      offset = _useState10[0],
-      setOffset = _useState10[1];
+      renderState = _useState10[0],
+      setRenderState = _useState10[1];
 
-    var _useState11 = React.useState(expanded),
+    var _useState11 = React.useState(RENDER_LOCATE_STATE.DONE),
       _useState12 = slicedToArray(_useState11, 2),
-      internalExpanded = _useState12[0],
-      setInternalExpanded = _useState12[1];
+      renderLocateState = _useState12[0],
+      setRenderLocateState = _useState12[1];
 
-    var clamped = useClamped(content, offset);
-    var screenContent = useScreenContent(content, offset, clamped, ellipsis);
+    var _useState13 = React.useState(RENDER_FILL_STATE.DONE),
+      _useState14 = slicedToArray(_useState13, 2),
+      renderFillState = _useState14[0],
+      setRenderFillState = _useState14[1];
+
+    var screenContent = useScreenContent(content, offset, contentLength, ellipsis);
     var screenMaxHeight = useScreenMaxHeight(internalExpanded, maxHeight);
-    var overFlowed = useOverflowed(maxLines, screenMaxHeight, tagRef, contentRef);
-    var search = React.useCallback(
+    React.useEffect(
       function () {
-        var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-        var to = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : offset;
-        var contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
-
-        if (to - from <= 3) {
-          while ((!overFlowed || contentLines < 2) && offset < content.length) {
-            setOffset(offset + 1);
-          }
-
-          while (overFlowed && contentLines > 1 && offset > 0) {
-            setOffset(offset - 1);
-          }
-
-          return;
-        }
-
-        var target = Math.floor((to + from) / 2);
-        setOffset(target);
-
-        if (overFlowed) {
-          search(from, target);
-        } else {
-          search(target, to);
+        if (!internalExpanded && isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) && renderState === 'done') {
+          setRenderState(RENDER_STATE.START);
         }
       },
-      [overFlowed, offset, content, contentRef],
+      [maxLines, maxHeight, ellipsis, internalExpanded, renderState, screenMaxHeight],
     );
     React.useEffect(
       function () {
-        if (!internalExpanded && (overFlowed || clamped)) {
-          search();
+        if (renderState === RENDER_STATE.START) {
+          setRenderLocateState(RENDER_LOCATE_STATE.START);
         }
       },
-      [clamped, overFlowed, internalExpanded, search],
+      [renderState, contentLength],
+    );
+    React.useEffect(
+      function () {
+        var contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
+
+        if (renderLocateState === RENDER_LOCATE_STATE.START) {
+          if (isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef)) {
+            // need dec
+            setOffset(function (prevOffset) {
+              return ~~(prevOffset / 2);
+            });
+          } else if (contentLines !== maxLines) {
+            // need add
+            setOffset(function (prevOffset) {
+              return ~~(prevOffset + prevOffset / 2);
+            });
+          } else {
+            setRenderLocateState(RENDER_LOCATE_STATE.DONE);
+            setRenderFillState(RENDER_FILL_STATE.ASCEND);
+          }
+        }
+      },
+      [renderLocateState, maxLines, contentRef, screenMaxHeight, screenContent],
+    );
+    React.useEffect(
+      function () {
+        var contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
+
+        if (renderFillState === RENDER_FILL_STATE.ASCEND) {
+          if (
+            (!isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) || contentLines < 2) &&
+            offset < contentLength
+          ) {
+            setOffset(offset + 1);
+            console.log(RENDER_FILL_STATE.ASCEND);
+          } else {
+            setRenderFillState(RENDER_FILL_STATE.DESCEND);
+          }
+        } else if (renderFillState === RENDER_FILL_STATE.DESCEND) {
+          if (isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) && contentLines > 1 && offset > 0) {
+            setOffset(offset - 1);
+            console.log(RENDER_FILL_STATE.DESCEND);
+          } else {
+            setRenderFillState(RENDER_FILL_STATE.DONE);
+            setRenderState(RENDER_STATE.DONE);
+          }
+        }
+      },
+      [renderFillState, contentLength, offset, contentRef, maxLines, screenMaxHeight],
     );
     var contentWrapper = /*#__PURE__*/ React__default.createElement(
       'span',
@@ -1053,7 +1085,7 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 137,
+          lineNumber: 142,
         },
       },
       screenContent,
@@ -1068,19 +1100,22 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 138,
+          lineNumber: 144,
         },
       },
       contentWrapper,
     );
     return /*#__PURE__*/ React__default.createElement(
-      tag,
+      'div',
       {
+        ref: tagRef,
         style: {
           overflow: 'hidden',
         },
-        ref: {
-          tagRef: tagRef,
+        __self: _this,
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 148,
         },
       },
       linesWrapper,
@@ -1102,7 +1137,7 @@
         },
       },
       /*#__PURE__*/ React__default.createElement(
-        'span',
+        'div',
         {
           __self: _this$1,
           __source: {
@@ -1110,7 +1145,7 @@
             lineNumber: 8,
           },
         },
-        'Default',
+        'test 1',
       ),
       /*#__PURE__*/ React__default.createElement(ReactSimpleClamp, {
         content:
@@ -1123,6 +1158,28 @@
           lineNumber: 9,
         },
       }),
+      /*#__PURE__*/ React__default.createElement(
+        'div',
+        {
+          __self: _this$1,
+          __source: {
+            fileName: _jsxFileName$1,
+            lineNumber: 10,
+          },
+        },
+        'test 2',
+      ),
+      /*#__PURE__*/ React__default.createElement(ReactSimpleClamp, {
+        content:
+          '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
+        maxHeight: 40,
+        maxLines: 5,
+        __self: _this$1,
+        __source: {
+          fileName: _jsxFileName$1,
+          lineNumber: 11,
+        },
+      }),
     );
   };
 
@@ -1131,7 +1188,7 @@
       __self: undefined,
       __source: {
         fileName: _jsxFileName$1,
-        lineNumber: 14,
+        lineNumber: 16,
       },
     }),
     document.querySelector('#app'),

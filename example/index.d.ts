@@ -1,6 +1,5 @@
 import React from 'react';
 export interface ReactSimpleClampProps {
-  tag?: string;
   autoresize?: boolean;
   maxLines: number;
   maxHeight: number | string;
