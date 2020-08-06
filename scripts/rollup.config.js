@@ -42,7 +42,7 @@ const options = {
     postcss({
       extract: false,
       minimize: true,
-      extensions: ['css', 'less'],
+      extensions: ['.css', '.less'],
       plugins: [autoprefixer],
     }),
     typescript(),
