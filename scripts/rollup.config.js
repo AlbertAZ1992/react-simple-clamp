@@ -9,6 +9,7 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
 import sucrase from '@rollup/plugin-sucrase';
+import json from '@rollup/plugin-json';
 
 import pkg from '../package.json';
 
@@ -34,7 +35,8 @@ const options = {
   ],
   external: ['react', 'react-dom'],
   plugins: [
-    nodeResolve({ extensions }),
+    json(),
+    nodeResolve({ extensions, browser: true }),
     commonjs(),
     clear({
       targets: ['dist', 'es', 'lib'],
@@ -42,7 +44,7 @@ const options = {
     postcss({
       extract: false,
       minimize: true,
-      extensions: ['css', 'less'],
+      extensions: ['.css', '.less'],
       plugins: [autoprefixer],
     }),
     typescript(),

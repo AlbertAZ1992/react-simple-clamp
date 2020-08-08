@@ -1,5 +1,5 @@
 import React from 'react';
-export interface ClampTextProps {
+export interface ClampInlineHtmlProps {
   autoresize?: boolean;
   maxLines: number;
   maxHeight: number | string;
@@ -7,5 +7,5 @@ export interface ClampTextProps {
   expanded?: boolean;
   content: string;
 }
-declare const ClampText: React.FC<ClampTextProps>;
-export default ClampText;
+declare const ClampInlineHtml: React.FC<ClampInlineHtmlProps>;
+export default ClampInlineHtml;

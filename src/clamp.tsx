@@ -7,8 +7,8 @@ export interface ReactSimpleClampProps<T> {
   ellipsis?: string;
   expanded?: boolean;
   content: T;
-  renderContent: () => React.ReactElement;
-  renderClampedContent: (offset: number, ellipsis: string) => React.ReactElement;
+  renderContent: () => JSX.Element | JSX.Element[];
+  renderClampedContent: (offset: number, ellipsis: string) => JSX.Element | JSX.Element[];
 }
 
 const RENDER_STATE = {
@@ -64,13 +64,13 @@ function useScreenMaxHeight(internalExpanded: boolean, maxHeight: number | strin
 
 function useScreenContent(
   content: string | string[],
-  renderContent: () => React.ReactElement,
-  renderClampedContent: (offset: number, ellipsis: string) => React.ReactElement,
+  renderContent: () => JSX.Element | JSX.Element[],
+  renderClampedContent: (offset: number, ellipsis: string) => JSX.Element | JSX.Element[],
   offset: number,
   contentLength: number,
   ellipsis: string,
-): React.ReactElement {
-  const [screenContent, setScreenContent] = useState<React.ReactElement>(() => renderContent());
+): JSX.Element | JSX.Element[] {
+  const [screenContent, setScreenContent] = useState<JSX.Element | JSX.Element[]>(() => renderContent());
 
   useEffect(() => {
     if (!contentLength) {

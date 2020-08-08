@@ -61,6 +61,10 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     ],
+    'consistent-return': OFF,
+    'jsx-a11y/no-static-element-interactions': OFF,
+    'jsx-a11y/click-events-have-key-events': OFF,
+    'react/jsx-fragments': OFF,
     'react/jsx-props-no-spreading': OFF,
     'func-names': OFF,
     'lines-between-class-members': OFF,
@@ -91,7 +95,7 @@ module.exports = {
     '@typescript-eslint/no-empty-function': OFF,
     '@typescript-eslint/no-useless-constructor': ERROR,
   },
-  ignorePatterns: ['example/**/*'],
+  ignorePatterns: ['example/**/*', 'scripts/**/*'],
   overrides: [
     {
       files: ['**/*.d.ts'],

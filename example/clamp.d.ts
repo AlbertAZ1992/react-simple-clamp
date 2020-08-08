@@ -6,8 +6,8 @@ export interface ReactSimpleClampProps<T> {
   ellipsis?: string;
   expanded?: boolean;
   content: T;
-  renderContent: () => React.ReactElement;
-  renderClampedContent: (offset: number, ellipsis: string) => React.ReactElement;
+  renderContent: () => JSX.Element | JSX.Element[];
+  renderClampedContent: (offset: number, ellipsis: string) => JSX.Element | JSX.Element[];
 }
 declare const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>>;
 export default ReactSimpleClamp;
