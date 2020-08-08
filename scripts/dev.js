@@ -3,7 +3,7 @@ import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
 import config from './rollup.config';
 
-const PORT = 3000;
+const PORT = 8288;
 
 const devSite = `http://127.0.0.1:${PORT}`;
 const devPath = path.resolve('example', 'index.html');
