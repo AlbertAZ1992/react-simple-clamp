@@ -1,7 +1,7 @@
 {
   "name": "react-simple-clamp",
   "version": "1.0.0",
-  "description": "Clamping multiline text with ease",
+  "description": "Clamping inine text or html",
   "main": "lib/index.js",
   "module": "es/index.js",
   "unpkg": "dist/index.min.js",
@@ -83,5 +83,17 @@
   },
   "dependencies": {
     "html-react-parser": "^0.13.0"
-  }
+  },
+  "keywords": [
+    "clamp",
+    "clamping",
+    "clamp text",
+    "clamp html",
+    "inline html clamp",
+    "react clamp",
+    "clamp lines",
+    "react clamp lines",
+    "react clamping component",
+    "react ellipsis"
+  ]
 }

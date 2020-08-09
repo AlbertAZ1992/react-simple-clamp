@@ -9,34 +9,47 @@ export interface ClampInlineHtmlProps {
   ellipsis?: string;
   expanded?: boolean;
   content: string;
+  className?: string;
+  renderAfter: (clamped: boolean) => JSX.Element | JSX.Element[];
 }
 
 const ClampInlineHtml: React.FC<ClampInlineHtmlProps> = (properties) => {
-  const { content, ...restProps } = properties;
+  const { content, renderAfter = () => <Fragment />, ...restProps } = properties;
 
   const renderClampedContent = (offset: number, ellipsis: string) => {
     let count = 0;
     let finished = false;
-    return parse(`${content}${ellipsis}`, {
-      replace(domNode): JSX.Element | void {
-        if (domNode.type === 'text') {
-          if (count === offset || finished) {
-            return <Fragment />;
-          }
-          if (count + domNode.data.length <= offset) {
-            count += domNode.data.length;
-            return;
-          }
-          const gap = offset - (count + domNode.data.length + offset);
-          finished = true;
-          return <Fragment>{domNode.data.slice(0, gap)}</Fragment>;
-        }
-      },
-    });
+    return (
+      <Fragment>
+        {parse(content, {
+          replace(domNode): JSX.Element | void {
+            if (domNode.type === 'text') {
+              if (count === offset || finished) {
+                return <Fragment />;
+              }
+              if (count + domNode.data.length <= offset) {
+                count += domNode.data.length;
+                return;
+              }
+              const gap = offset - (count + domNode.data.length - offset);
+              finished = true;
+              return <Fragment>{domNode.data.slice(0, gap)}</Fragment>;
+            }
+          },
+        })}
+        <span>{ellipsis}</span>
+        {renderAfter(true)}
+      </Fragment>
+    );
   };
 
   const renderContent = () => {
-    return parse(content);
+    return (
+      <Fragment>
+        {parse(content)}
+        {renderAfter(false)}
+      </Fragment>
+    );
   };
 
   return (

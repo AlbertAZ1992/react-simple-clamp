@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Clamp from './clamp';
 
 export interface ClampTextProps {
@@ -8,17 +8,29 @@ export interface ClampTextProps {
   ellipsis?: string;
   expanded?: boolean;
   content: string;
+  className?: string;
+  renderAfter: (clamped: boolean) => JSX.Element | JSX.Element[];
 }
 
 const ClampText: React.FC<ClampTextProps> = (properties) => {
-  const { content, ...restProps } = properties;
+  const { content, renderAfter = () => <Fragment />, ...restProps } = properties;
 
   const renderClampedContent = (offset: number, ellipsis: string) => {
-    return <span>{`${content.slice(0, offset)}${ellipsis}`}</span>;
+    return (
+      <span>
+        {`${content.slice(0, offset)}${ellipsis}`}
+        {renderAfter(true)}
+      </span>
+    );
   };
 
   const renderContent = () => {
-    return <span>{content}</span>;
+    return (
+      <span>
+        {content}
+        {renderAfter(false)}
+      </span>
+    );
   };
 
   return (

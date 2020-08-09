@@ -5,6 +5,7 @@ export interface ReactSimpleClampProps<T> {
   maxHeight: number | string;
   ellipsis?: string;
   expanded?: boolean;
+  className?: string;
   content: T;
   renderContent: () => JSX.Element | JSX.Element[];
   renderClampedContent: (offset: number, ellipsis: string) => JSX.Element | JSX.Element[];
