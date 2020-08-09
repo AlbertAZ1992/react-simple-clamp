@@ -10,10 +10,11 @@ export interface ClampInlineHtmlProps {
   expanded?: boolean;
   content: string;
   className?: string;
+  renderAfter: (clamped: boolean) => JSX.Element | JSX.Element[];
 }
 
 const ClampInlineHtml: React.FC<ClampInlineHtmlProps> = (properties) => {
-  const { content, ...restProps } = properties;
+  const { content, renderAfter = () => <Fragment />, ...restProps } = properties;
 
   const renderClampedContent = (offset: number, ellipsis: string) => {
     let count = 0;
@@ -37,12 +38,18 @@ const ClampInlineHtml: React.FC<ClampInlineHtmlProps> = (properties) => {
           },
         })}
         <span>{ellipsis}</span>
+        {renderAfter(true)}
       </Fragment>
     );
   };
 
   const renderContent = () => {
-    return parse(content);
+    return (
+      <Fragment>
+        {parse(content)}
+        {renderAfter(false)}
+      </Fragment>
+    );
   };
 
   return (

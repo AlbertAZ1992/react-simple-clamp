@@ -28,6 +28,33 @@ const App = () => (
 ReactDOM.render(<App />, document.querySelector('#app'));
 ```
 
+Using `renderAfter` and `expanded` to expand(read more) or collapse(read less) component:
+
+```jsx
+...
+const App = () => {
+  const [expanded, setExpended] = useState(false);
+  return (
+    <div style={{width: 200, background: '#f5f5f5', marginBottom: 30}} >
+      <Clamp
+        content={text}
+        maxHeight={60}
+        maxLines={2}
+        expanded={expanded}
+        renderAfter={
+          (clamped) => (
+            <span style={{background: '#61dafb', padding: '0 4px' }}
+              onClick={() => { setExpended(!!clamped) }}>
+              {clamped ? 'open' : 'close'}
+            </span>
+          )
+        }
+      />
+    </div>
+  )
+};
+```
+
 ### clamp html
 
 ```jsx
@@ -55,18 +82,20 @@ export interface ClampProps {
   maxLines: number;
   maxHeight: number | string;
   ellipsis?: string;
+  expanded?: boolean;
   content: string;
   className?: string;
+  renderAfter: (clamped: boolean) => JSX.Element | JSX.Element[];
 }
 ```
 
-| prop      | type              | default              | description                                                                                 |
-| --------- | ----------------- | -------------------- | ------------------------------------------------------------------------------------------- |
-| content   | `string`          |                      | Text to clamp, text or _inline html_                                                        |
-| maxLines  | `number`          |                      | Max number of display lines                                                                 |
-| maxHeight | `number | string` |                      | Max height of component, can be configure with number of px value or string of CSS property |
-| ellipsis  | `string`          | `...`                | Ellipsis content after the clamped content                                                  |
-| className | `string`          | `react-simple-clamp` | CSS class names added to component                                                          |
+- `maxLines`: Max number of display lines
+- `maxHeight`: Max height of component, can be configure with number of px value or string of CSS property
+- `ellipsis`: Ellipsis content after the clamped main content
+- `expanded`: Whether component is expanded
+- `content`: Text to clamp, text or **[inline html elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements)**
+- `className`: Default CSS class name of component
+- `renderAfter`: render function for the content after the main content and ellipsis content (if exist)
 
 ## License
 

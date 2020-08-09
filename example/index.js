@@ -19,6 +19,80 @@
   var React__default = 'default' in React ? React['default'] : React;
   ReactDOM = ReactDOM && Object.prototype.hasOwnProperty.call(ReactDOM, 'default') ? ReactDOM['default'] : ReactDOM;
 
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
+  var arrayWithHoles = _arrayWithHoles;
+
+  function _iterableToArrayLimit(arr, i) {
+    if (typeof Symbol === 'undefined' || !(Symbol.iterator in Object(arr))) return;
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i['return'] != null) _i['return']();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  var iterableToArrayLimit = _iterableToArrayLimit;
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  }
+
+  var arrayLikeToArray = _arrayLikeToArray;
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === 'string') return arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === 'Object' && o.constructor) n = o.constructor.name;
+    if (n === 'Map' || n === 'Set') return Array.from(o);
+    if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return arrayLikeToArray(o, minLen);
+  }
+
+  var unsupportedIterableToArray = _unsupportedIterableToArray;
+
+  function _nonIterableRest() {
+    throw new TypeError(
+      'Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.',
+    );
+  }
+
+  var nonIterableRest = _nonIterableRest;
+
+  function _slicedToArray(arr, i) {
+    return (
+      arrayWithHoles(arr) || iterableToArrayLimit(arr, i) || unsupportedIterableToArray(arr, i) || nonIterableRest()
+    );
+  }
+
+  var slicedToArray = _slicedToArray;
+
   var commonjsGlobal =
     typeof globalThis !== 'undefined'
       ? globalThis
@@ -553,19 +627,19 @@
   var getOwnPropertyDescriptor$1 = objectGetOwnPropertyDescriptor.f;
 
   /*
-	  options.target      - name of the target object
-	  options.global      - target is the global object
-	  options.stat        - export as static methods of target
-	  options.proto       - export as prototype methods of target
-	  options.real        - real prototype method for the `pure` version
-	  options.forced      - export even if the native feature is available
-	  options.bind        - bind methods to the target, required for the `pure` version
-	  options.wrap        - wrap constructors to preventing global pollution, required for the `pure` version
-	  options.unsafe      - use the simple assignment of property instead of delete + defineProperty
-	  options.sham        - add a flag to not completely full polyfills
-	  options.enumerable  - export as enumerable property
-	  options.noTargetGet - prevent calling a getter on target
-	*/
+    options.target      - name of the target object
+    options.global      - target is the global object
+    options.stat        - export as static methods of target
+    options.proto       - export as prototype methods of target
+    options.real        - real prototype method for the `pure` version
+    options.forced      - export even if the native feature is available
+    options.bind        - bind methods to the target, required for the `pure` version
+    options.wrap        - wrap constructors to preventing global pollution, required for the `pure` version
+    options.unsafe      - use the simple assignment of property instead of delete + defineProperty
+    options.sham        - add a flag to not completely full polyfills
+    options.enumerable  - export as enumerable property
+    options.noTargetGet - prevent calling a getter on target
+  */
   var _export = function (options, source) {
     var TARGET = options.target;
     var GLOBAL = options.global;
@@ -1623,79 +1697,638 @@
 
   var objectWithoutProperties = _objectWithoutProperties;
 
-  function _arrayWithHoles(arr) {
-    if (Array.isArray(arr)) return arr;
-  }
+  var aPossiblePrototype = function (it) {
+    if (!isObject(it) && it !== null) {
+      throw TypeError("Can't set " + String(it) + ' as a prototype');
+    }
+    return it;
+  };
 
-  var arrayWithHoles = _arrayWithHoles;
+  // `Object.setPrototypeOf` method
+  // https://tc39.github.io/ecma262/#sec-object.setprototypeof
+  // Works with __proto__ only. Old v8 can't work with null proto objects.
+  /* eslint-disable no-proto */
+  var objectSetPrototypeOf =
+    Object.setPrototypeOf ||
+    ('__proto__' in {}
+      ? (function () {
+          var CORRECT_SETTER = false;
+          var test = {};
+          var setter;
+          try {
+            setter = Object.getOwnPropertyDescriptor(Object.prototype, '__proto__').set;
+            setter.call(test, []);
+            CORRECT_SETTER = test instanceof Array;
+          } catch (error) {
+            /* empty */
+          }
+          return function setPrototypeOf(O, proto) {
+            anObject(O);
+            aPossiblePrototype(proto);
+            if (CORRECT_SETTER) setter.call(O, proto);
+            else O.__proto__ = proto;
+            return O;
+          };
+        })()
+      : undefined);
 
-  function _iterableToArrayLimit(arr, i) {
-    if (typeof Symbol === 'undefined' || !(Symbol.iterator in Object(arr))) return;
-    var _arr = [];
-    var _n = true;
-    var _d = false;
-    var _e = undefined;
+  // makes subclassing work correct for wrapped built-ins
+  var inheritIfRequired = function ($this, dummy, Wrapper) {
+    var NewTarget, NewTargetPrototype;
+    if (
+      // it can work only with native `setPrototypeOf`
+      objectSetPrototypeOf &&
+      // we haven't completely correct pre-ES6 way for getting `new.target`, so use this
+      typeof (NewTarget = dummy.constructor) == 'function' &&
+      NewTarget !== Wrapper &&
+      isObject((NewTargetPrototype = NewTarget.prototype)) &&
+      NewTargetPrototype !== Wrapper.prototype
+    )
+      objectSetPrototypeOf($this, NewTargetPrototype);
+    return $this;
+  };
 
-    try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-        _arr.push(_s.value);
+  // a string of all valid unicode whitespaces
+  // eslint-disable-next-line max-len
+  var whitespaces =
+    '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF';
 
-        if (i && _arr.length === i) break;
-      }
-    } catch (err) {
-      _d = true;
-      _e = err;
-    } finally {
-      try {
-        if (!_n && _i['return'] != null) _i['return']();
-      } finally {
-        if (_d) throw _e;
+  var whitespace = '[' + whitespaces + ']';
+  var ltrim = RegExp('^' + whitespace + whitespace + '*');
+  var rtrim = RegExp(whitespace + whitespace + '*$');
+
+  // `String.prototype.{ trim, trimStart, trimEnd, trimLeft, trimRight }` methods implementation
+  var createMethod$2 = function (TYPE) {
+    return function ($this) {
+      var string = String(requireObjectCoercible($this));
+      if (TYPE & 1) string = string.replace(ltrim, '');
+      if (TYPE & 2) string = string.replace(rtrim, '');
+      return string;
+    };
+  };
+
+  var stringTrim = {
+    // `String.prototype.{ trimLeft, trimStart }` methods
+    // https://tc39.github.io/ecma262/#sec-string.prototype.trimstart
+    start: createMethod$2(1),
+    // `String.prototype.{ trimRight, trimEnd }` methods
+    // https://tc39.github.io/ecma262/#sec-string.prototype.trimend
+    end: createMethod$2(2),
+    // `String.prototype.trim` method
+    // https://tc39.github.io/ecma262/#sec-string.prototype.trim
+    trim: createMethod$2(3),
+  };
+
+  var getOwnPropertyNames = objectGetOwnPropertyNames.f;
+  var getOwnPropertyDescriptor$2 = objectGetOwnPropertyDescriptor.f;
+  var defineProperty$4 = objectDefineProperty.f;
+  var trim = stringTrim.trim;
+
+  var NUMBER = 'Number';
+  var NativeNumber = global_1[NUMBER];
+  var NumberPrototype = NativeNumber.prototype;
+
+  // Opera ~12 has broken Object#toString
+  var BROKEN_CLASSOF = classofRaw(objectCreate(NumberPrototype)) == NUMBER;
+
+  // `ToNumber` abstract operation
+  // https://tc39.github.io/ecma262/#sec-tonumber
+  var toNumber = function (argument) {
+    var it = toPrimitive(argument, false);
+    var first, third, radix, maxCode, digits, length, index, code;
+    if (typeof it == 'string' && it.length > 2) {
+      it = trim(it);
+      first = it.charCodeAt(0);
+      if (first === 43 || first === 45) {
+        third = it.charCodeAt(2);
+        if (third === 88 || third === 120) return NaN; // Number('+0x1') should be NaN, old V8 fix
+      } else if (first === 48) {
+        switch (it.charCodeAt(1)) {
+          case 66:
+          case 98:
+            radix = 2;
+            maxCode = 49;
+            break; // fast equal of /^0b[01]+$/i
+          case 79:
+          case 111:
+            radix = 8;
+            maxCode = 55;
+            break; // fast equal of /^0o[0-7]+$/i
+          default:
+            return +it;
+        }
+        digits = it.slice(2);
+        length = digits.length;
+        for (index = 0; index < length; index++) {
+          code = digits.charCodeAt(index);
+          // parseInt parses a string to a first unavailable symbol
+          // but ToNumber should return NaN if a string contains unavailable symbols
+          if (code < 48 || code > maxCode) return NaN;
+        }
+        return parseInt(digits, radix);
       }
     }
+    return +it;
+  };
 
-    return _arr;
+  // `Number` constructor
+  // https://tc39.github.io/ecma262/#sec-number-constructor
+  if (isForced_1(NUMBER, !NativeNumber(' 0o1') || !NativeNumber('0b1') || NativeNumber('+0x1'))) {
+    var NumberWrapper = function Number(value) {
+      var it = arguments.length < 1 ? 0 : value;
+      var dummy = this;
+      return dummy instanceof NumberWrapper &&
+        // check on 1..constructor(foo) case
+        (BROKEN_CLASSOF
+          ? fails(function () {
+              NumberPrototype.valueOf.call(dummy);
+            })
+          : classofRaw(dummy) != NUMBER)
+        ? inheritIfRequired(new NativeNumber(toNumber(it)), dummy, NumberWrapper)
+        : toNumber(it);
+    };
+    for (
+      var keys$1 = descriptors
+          ? getOwnPropertyNames(NativeNumber)
+          : // ES3:
+            (
+              'MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY,' +
+              // ES2015 (in case, if modules with ES2015 Number statics required before):
+              'EPSILON,isFinite,isInteger,isNaN,isSafeInteger,MAX_SAFE_INTEGER,' +
+              'MIN_SAFE_INTEGER,parseFloat,parseInt,isInteger'
+            ).split(','),
+        j = 0,
+        key;
+      keys$1.length > j;
+      j++
+    ) {
+      if (has(NativeNumber, (key = keys$1[j])) && !has(NumberWrapper, key)) {
+        defineProperty$4(NumberWrapper, key, getOwnPropertyDescriptor$2(NativeNumber, key));
+      }
+    }
+    NumberWrapper.prototype = NumberPrototype;
+    NumberPrototype.constructor = NumberWrapper;
+    redefine(global_1, NUMBER, NumberWrapper);
   }
 
-  var iterableToArrayLimit = _iterableToArrayLimit;
+  // `RegExp.prototype.flags` getter implementation
+  // https://tc39.github.io/ecma262/#sec-get-regexp.prototype.flags
+  var regexpFlags = function () {
+    var that = anObject(this);
+    var result = '';
+    if (that.global) result += 'g';
+    if (that.ignoreCase) result += 'i';
+    if (that.multiline) result += 'm';
+    if (that.dotAll) result += 's';
+    if (that.unicode) result += 'u';
+    if (that.sticky) result += 'y';
+    return result;
+  };
 
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
+  // babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError,
+  // so we use an intermediate function.
+  function RE(s, f) {
+    return RegExp(s, f);
+  }
 
-    for (var i = 0, arr2 = new Array(len); i < len; i++) {
-      arr2[i] = arr[i];
+  var UNSUPPORTED_Y = fails(function () {
+    // babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError
+    var re = RE('a', 'y');
+    re.lastIndex = 2;
+    return re.exec('abcd') != null;
+  });
+
+  var BROKEN_CARET = fails(function () {
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=773687
+    var re = RE('^r', 'gy');
+    re.lastIndex = 2;
+    return re.exec('str') != null;
+  });
+
+  var regexpStickyHelpers = {
+    UNSUPPORTED_Y: UNSUPPORTED_Y,
+    BROKEN_CARET: BROKEN_CARET,
+  };
+
+  var nativeExec = RegExp.prototype.exec;
+  // This always refers to the native implementation, because the
+  // String#replace polyfill uses ./fix-regexp-well-known-symbol-logic.js,
+  // which loads this file before patching the method.
+  var nativeReplace = String.prototype.replace;
+
+  var patchedExec = nativeExec;
+
+  var UPDATES_LAST_INDEX_WRONG = (function () {
+    var re1 = /a/;
+    var re2 = /b*/g;
+    nativeExec.call(re1, 'a');
+    nativeExec.call(re2, 'a');
+    return re1.lastIndex !== 0 || re2.lastIndex !== 0;
+  })();
+
+  var UNSUPPORTED_Y$1 = regexpStickyHelpers.UNSUPPORTED_Y || regexpStickyHelpers.BROKEN_CARET;
+
+  // nonparticipating capturing group, copied from es5-shim's String#split patch.
+  var NPCG_INCLUDED = /()??/.exec('')[1] !== undefined;
+
+  var PATCH = UPDATES_LAST_INDEX_WRONG || NPCG_INCLUDED || UNSUPPORTED_Y$1;
+
+  if (PATCH) {
+    patchedExec = function exec(str) {
+      var re = this;
+      var lastIndex, reCopy, match, i;
+      var sticky = UNSUPPORTED_Y$1 && re.sticky;
+      var flags = regexpFlags.call(re);
+      var source = re.source;
+      var charsAdded = 0;
+      var strCopy = str;
+
+      if (sticky) {
+        flags = flags.replace('y', '');
+        if (flags.indexOf('g') === -1) {
+          flags += 'g';
+        }
+
+        strCopy = String(str).slice(re.lastIndex);
+        // Support anchored sticky behavior.
+        if (re.lastIndex > 0 && (!re.multiline || (re.multiline && str[re.lastIndex - 1] !== '\n'))) {
+          source = '(?: ' + source + ')';
+          strCopy = ' ' + strCopy;
+          charsAdded++;
+        }
+        // ^(? + rx + ) is needed, in combination with some str slicing, to
+        // simulate the 'y' flag.
+        reCopy = new RegExp('^(?:' + source + ')', flags);
+      }
+
+      if (NPCG_INCLUDED) {
+        reCopy = new RegExp('^' + source + '$(?!\\s)', flags);
+      }
+      if (UPDATES_LAST_INDEX_WRONG) lastIndex = re.lastIndex;
+
+      match = nativeExec.call(sticky ? reCopy : re, strCopy);
+
+      if (sticky) {
+        if (match) {
+          match.input = match.input.slice(charsAdded);
+          match[0] = match[0].slice(charsAdded);
+          match.index = re.lastIndex;
+          re.lastIndex += match[0].length;
+        } else re.lastIndex = 0;
+      } else if (UPDATES_LAST_INDEX_WRONG && match) {
+        re.lastIndex = re.global ? match.index + match[0].length : lastIndex;
+      }
+      if (NPCG_INCLUDED && match && match.length > 1) {
+        // Fix browsers whose `exec` methods don't consistently return `undefined`
+        // for NPCG, like IE8. NOTE: This doesn' work for /(.?)?/
+        nativeReplace.call(match[0], reCopy, function () {
+          for (i = 1; i < arguments.length - 2; i++) {
+            if (arguments[i] === undefined) match[i] = undefined;
+          }
+        });
+      }
+
+      return match;
+    };
+  }
+
+  var regexpExec = patchedExec;
+
+  _export(
+    { target: 'RegExp', proto: true, forced: /./.exec !== regexpExec },
+    {
+      exec: regexpExec,
+    },
+  );
+
+  // TODO: Remove from `core-js@4` since it's moved to entry points
+
+  var SPECIES$3 = wellKnownSymbol('species');
+
+  var REPLACE_SUPPORTS_NAMED_GROUPS = !fails(function () {
+    // #replace needs built-in support for named groups.
+    // #match works fine because it just return the exec results, even if it has
+    // a "grops" property.
+    var re = /./;
+    re.exec = function () {
+      var result = [];
+      result.groups = { a: '7' };
+      return result;
+    };
+    return ''.replace(re, '$<a>') !== '7';
+  });
+
+  // IE <= 11 replaces $0 with the whole match, as if it was $&
+  // https://stackoverflow.com/questions/6024666/getting-ie-to-replace-a-regex-with-the-literal-string-0
+  var REPLACE_KEEPS_$0 = (function () {
+    return 'a'.replace(/./, '$0') === '$0';
+  })();
+
+  var REPLACE = wellKnownSymbol('replace');
+  // Safari <= 13.0.3(?) substitutes nth capture where n>m with an empty string
+  var REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE = (function () {
+    if (/./[REPLACE]) {
+      return /./[REPLACE]('a', '$0') === '';
+    }
+    return false;
+  })();
+
+  // Chrome 51 has a buggy "split" implementation when RegExp#exec !== nativeExec
+  // Weex JS has frozen built-in prototypes, so use try / catch wrapper
+  var SPLIT_WORKS_WITH_OVERWRITTEN_EXEC = !fails(function () {
+    var re = /(?:)/;
+    var originalExec = re.exec;
+    re.exec = function () {
+      return originalExec.apply(this, arguments);
+    };
+    var result = 'ab'.split(re);
+    return result.length !== 2 || result[0] !== 'a' || result[1] !== 'b';
+  });
+
+  var fixRegexpWellKnownSymbolLogic = function (KEY, length, exec, sham) {
+    var SYMBOL = wellKnownSymbol(KEY);
+
+    var DELEGATES_TO_SYMBOL = !fails(function () {
+      // String methods call symbol-named RegEp methods
+      var O = {};
+      O[SYMBOL] = function () {
+        return 7;
+      };
+      return ''[KEY](O) != 7;
+    });
+
+    var DELEGATES_TO_EXEC =
+      DELEGATES_TO_SYMBOL &&
+      !fails(function () {
+        // Symbol-named RegExp methods call .exec
+        var execCalled = false;
+        var re = /a/;
+
+        if (KEY === 'split') {
+          // We can't use real regex here since it causes deoptimization
+          // and serious performance degradation in V8
+          // https://github.com/zloirock/core-js/issues/306
+          re = {};
+          // RegExp[@@split] doesn't call the regex's exec method, but first creates
+          // a new one. We need to return the patched regex when creating the new one.
+          re.constructor = {};
+          re.constructor[SPECIES$3] = function () {
+            return re;
+          };
+          re.flags = '';
+          re[SYMBOL] = /./[SYMBOL];
+        }
+
+        re.exec = function () {
+          execCalled = true;
+          return null;
+        };
+
+        re[SYMBOL]('');
+        return !execCalled;
+      });
+
+    if (
+      !DELEGATES_TO_SYMBOL ||
+      !DELEGATES_TO_EXEC ||
+      (KEY === 'replace' &&
+        !(REPLACE_SUPPORTS_NAMED_GROUPS && REPLACE_KEEPS_$0 && !REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE)) ||
+      (KEY === 'split' && !SPLIT_WORKS_WITH_OVERWRITTEN_EXEC)
+    ) {
+      var nativeRegExpMethod = /./[SYMBOL];
+      var methods = exec(
+        SYMBOL,
+        ''[KEY],
+        function (nativeMethod, regexp, str, arg2, forceStringMethod) {
+          if (regexp.exec === regexpExec) {
+            if (DELEGATES_TO_SYMBOL && !forceStringMethod) {
+              // The native String method already delegates to @@method (this
+              // polyfilled function), leasing to infinite recursion.
+              // We avoid it by directly calling the native @@method method.
+              return { done: true, value: nativeRegExpMethod.call(regexp, str, arg2) };
+            }
+            return { done: true, value: nativeMethod.call(str, regexp, arg2) };
+          }
+          return { done: false };
+        },
+        {
+          REPLACE_KEEPS_$0: REPLACE_KEEPS_$0,
+          REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE: REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE,
+        },
+      );
+      var stringMethod = methods[0];
+      var regexMethod = methods[1];
+
+      redefine(String.prototype, KEY, stringMethod);
+      redefine(
+        RegExp.prototype,
+        SYMBOL,
+        length == 2
+          ? // 21.2.5.8 RegExp.prototype[@@replace](string, replaceValue)
+            // 21.2.5.11 RegExp.prototype[@@split](string, limit)
+            function (string, arg) {
+              return regexMethod.call(string, this, arg);
+            }
+          : // 21.2.5.6 RegExp.prototype[@@match](string)
+            // 21.2.5.9 RegExp.prototype[@@search](string)
+            function (string) {
+              return regexMethod.call(string, this);
+            },
+      );
     }
 
-    return arr2;
-  }
+    if (sham) createNonEnumerableProperty(RegExp.prototype[SYMBOL], 'sham', true);
+  };
 
-  var arrayLikeToArray = _arrayLikeToArray;
+  // `String.prototype.{ codePointAt, at }` methods implementation
+  var createMethod$3 = function (CONVERT_TO_STRING) {
+    return function ($this, pos) {
+      var S = String(requireObjectCoercible($this));
+      var position = toInteger(pos);
+      var size = S.length;
+      var first, second;
+      if (position < 0 || position >= size) return CONVERT_TO_STRING ? '' : undefined;
+      first = S.charCodeAt(position);
+      return first < 0xd800 ||
+        first > 0xdbff ||
+        position + 1 === size ||
+        (second = S.charCodeAt(position + 1)) < 0xdc00 ||
+        second > 0xdfff
+        ? CONVERT_TO_STRING
+          ? S.charAt(position)
+          : first
+        : CONVERT_TO_STRING
+        ? S.slice(position, position + 2)
+        : ((first - 0xd800) << 10) + (second - 0xdc00) + 0x10000;
+    };
+  };
 
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === 'string') return arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === 'Object' && o.constructor) n = o.constructor.name;
-    if (n === 'Map' || n === 'Set') return Array.from(o);
-    if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return arrayLikeToArray(o, minLen);
-  }
+  var stringMultibyte = {
+    // `String.prototype.codePointAt` method
+    // https://tc39.github.io/ecma262/#sec-string.prototype.codepointat
+    codeAt: createMethod$3(false),
+    // `String.prototype.at` method
+    // https://github.com/mathiasbynens/String.prototype.at
+    charAt: createMethod$3(true),
+  };
 
-  var unsupportedIterableToArray = _unsupportedIterableToArray;
+  var charAt = stringMultibyte.charAt;
 
-  function _nonIterableRest() {
-    throw new TypeError(
-      'Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.',
-    );
-  }
+  // `AdvanceStringIndex` abstract operation
+  // https://tc39.github.io/ecma262/#sec-advancestringindex
+  var advanceStringIndex = function (S, index, unicode) {
+    return index + (unicode ? charAt(S, index).length : 1);
+  };
 
-  var nonIterableRest = _nonIterableRest;
+  // `RegExpExec` abstract operation
+  // https://tc39.github.io/ecma262/#sec-regexpexec
+  var regexpExecAbstract = function (R, S) {
+    var exec = R.exec;
+    if (typeof exec === 'function') {
+      var result = exec.call(R, S);
+      if (typeof result !== 'object') {
+        throw TypeError('RegExp exec method returned something other than an Object or null');
+      }
+      return result;
+    }
 
-  function _slicedToArray(arr, i) {
-    return (
-      arrayWithHoles(arr) || iterableToArrayLimit(arr, i) || unsupportedIterableToArray(arr, i) || nonIterableRest()
-    );
-  }
+    if (classofRaw(R) !== 'RegExp') {
+      throw TypeError('RegExp#exec called on incompatible receiver');
+    }
 
-  var slicedToArray = _slicedToArray;
+    return regexpExec.call(R, S);
+  };
+
+  var max$2 = Math.max;
+  var min$2 = Math.min;
+  var floor$1 = Math.floor;
+  var SUBSTITUTION_SYMBOLS = /\$([$&'`]|\d\d?|<[^>]*>)/g;
+  var SUBSTITUTION_SYMBOLS_NO_NAMED = /\$([$&'`]|\d\d?)/g;
+
+  var maybeToString = function (it) {
+    return it === undefined ? it : String(it);
+  };
+
+  // @@replace logic
+  fixRegexpWellKnownSymbolLogic('replace', 2, function (REPLACE, nativeReplace, maybeCallNative, reason) {
+    var REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE = reason.REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE;
+    var REPLACE_KEEPS_$0 = reason.REPLACE_KEEPS_$0;
+    var UNSAFE_SUBSTITUTE = REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE ? '$' : '$0';
+
+    return [
+      // `String.prototype.replace` method
+      // https://tc39.github.io/ecma262/#sec-string.prototype.replace
+      function replace(searchValue, replaceValue) {
+        var O = requireObjectCoercible(this);
+        var replacer = searchValue == undefined ? undefined : searchValue[REPLACE];
+        return replacer !== undefined
+          ? replacer.call(searchValue, O, replaceValue)
+          : nativeReplace.call(String(O), searchValue, replaceValue);
+      },
+      // `RegExp.prototype[@@replace]` method
+      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@replace
+      function (regexp, replaceValue) {
+        if (
+          (!REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE && REPLACE_KEEPS_$0) ||
+          (typeof replaceValue === 'string' && replaceValue.indexOf(UNSAFE_SUBSTITUTE) === -1)
+        ) {
+          var res = maybeCallNative(nativeReplace, regexp, this, replaceValue);
+          if (res.done) return res.value;
+        }
+
+        var rx = anObject(regexp);
+        var S = String(this);
+
+        var functionalReplace = typeof replaceValue === 'function';
+        if (!functionalReplace) replaceValue = String(replaceValue);
+
+        var global = rx.global;
+        if (global) {
+          var fullUnicode = rx.unicode;
+          rx.lastIndex = 0;
+        }
+        var results = [];
+        while (true) {
+          var result = regexpExecAbstract(rx, S);
+          if (result === null) break;
+
+          results.push(result);
+          if (!global) break;
+
+          var matchStr = String(result[0]);
+          if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
+        }
+
+        var accumulatedResult = '';
+        var nextSourcePosition = 0;
+        for (var i = 0; i < results.length; i++) {
+          result = results[i];
+
+          var matched = String(result[0]);
+          var position = max$2(min$2(toInteger(result.index), S.length), 0);
+          var captures = [];
+          // NOTE: This is equivalent to
+          //   captures = result.slice(1).map(maybeToString)
+          // but for some reason `nativeSlice.call(result, 1, result.length)` (called in
+          // the slice polyfill when slicing native arrays) "doesn't work" in safari 9 and
+          // causes a crash (https://pastebin.com/N21QzeQA) when trying to debug it.
+          for (var j = 1; j < result.length; j++) captures.push(maybeToString(result[j]));
+          var namedCaptures = result.groups;
+          if (functionalReplace) {
+            var replacerArgs = [matched].concat(captures, position, S);
+            if (namedCaptures !== undefined) replacerArgs.push(namedCaptures);
+            var replacement = String(replaceValue.apply(undefined, replacerArgs));
+          } else {
+            replacement = getSubstitution(matched, S, position, captures, namedCaptures, replaceValue);
+          }
+          if (position >= nextSourcePosition) {
+            accumulatedResult += S.slice(nextSourcePosition, position) + replacement;
+            nextSourcePosition = position + matched.length;
+          }
+        }
+        return accumulatedResult + S.slice(nextSourcePosition);
+      },
+    ];
+
+    // https://tc39.github.io/ecma262/#sec-getsubstitution
+    function getSubstitution(matched, str, position, captures, namedCaptures, replacement) {
+      var tailPos = position + matched.length;
+      var m = captures.length;
+      var symbols = SUBSTITUTION_SYMBOLS_NO_NAMED;
+      if (namedCaptures !== undefined) {
+        namedCaptures = toObject(namedCaptures);
+        symbols = SUBSTITUTION_SYMBOLS;
+      }
+      return nativeReplace.call(replacement, symbols, function (match, ch) {
+        var capture;
+        switch (ch.charAt(0)) {
+          case '$':
+            return '$';
+          case '&':
+            return matched;
+          case '`':
+            return str.slice(0, position);
+          case "'":
+            return str.slice(tailPos);
+          case '<':
+            capture = namedCaptures[ch.slice(1, -1)];
+            break;
+          default:
+            // \d\d?
+            var n = +ch;
+            if (n === 0) return match;
+            if (n > m) {
+              var f = floor$1(n / 10);
+              if (f === 0) return match;
+              if (f <= m) return captures[f - 1] === undefined ? ch.charAt(1) : captures[f - 1] + ch.charAt(1);
+              return match;
+            }
+            capture = captures[n - 1];
+        }
+        return capture === undefined ? '' : capture;
+      });
+    }
+  });
 
   var _this = undefined;
 
@@ -1715,10 +2348,14 @@
     DONE: 'DONE',
   };
 
+  function getMaxHeightValue(screenMaxHeight) {
+    return Number(screenMaxHeight.replace('px', ''));
+  }
+
   function isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) {
     var contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
 
-    if (!maxLines && !screenMaxHeight) {
+    if (!maxLines && screenMaxHeight === 'none') {
       return false;
     }
 
@@ -1726,7 +2363,11 @@
       return true;
     }
 
-    if (screenMaxHeight && tagRef.current && tagRef.current.scrollHeight > tagRef.current.offsetHeight) {
+    if (
+      screenMaxHeight !== 'none' &&
+      tagRef.current &&
+      tagRef.current.scrollHeight > getMaxHeightValue(screenMaxHeight)
+    ) {
       return true;
     }
 
@@ -1754,7 +2395,15 @@
     return screenMaxHeight;
   }
 
-  function useScreenContent(content, renderContent, renderClampedContent, offset, contentLength, ellipsis) {
+  function useScreenContent(
+    content,
+    renderContent,
+    renderClampedContent,
+    offset,
+    contentLength,
+    ellipsis,
+    internalExpanded,
+  ) {
     var _useState3 = React.useState(function () {
         return renderContent();
       }),
@@ -1764,15 +2413,30 @@
 
     React.useEffect(
       function () {
-        if (!contentLength) {
+        if (!contentLength || internalExpanded) {
           setScreenContent(renderContent());
         } else if (offset !== contentLength) {
           setScreenContent(renderClampedContent(offset, ellipsis));
         }
       },
-      [content, renderContent, renderClampedContent, offset, contentLength, ellipsis],
+      [content, renderContent, renderClampedContent, offset, contentLength, ellipsis, internalExpanded],
     );
     return screenContent;
+  }
+
+  function useSetExpand(expanded) {
+    var _useState5 = React.useState(expanded),
+      _useState6 = slicedToArray(_useState5, 2),
+      internalExpanded = _useState6[0],
+      setInternalExpanded = _useState6[1];
+
+    React.useEffect(
+      function () {
+        setInternalExpanded(expanded);
+      },
+      [expanded],
+    );
+    return internalExpanded;
   }
 
   var ReactSimpleClamp = function ReactSimpleClamp(properties) {
@@ -1792,15 +2456,10 @@
     var contentRef = React.useRef();
     var offsetRef = React.useRef(contentLength);
 
-    var _useState5 = React.useState(contentLength),
-      _useState6 = slicedToArray(_useState5, 2),
-      offset = _useState6[0],
-      setOffset = _useState6[1];
-
-    var _useState7 = React.useState(expanded),
+    var _useState7 = React.useState(contentLength),
       _useState8 = slicedToArray(_useState7, 2),
-      internalExpanded = _useState8[0],
-      setInternalExpanded = _useState8[1];
+      offset = _useState8[0],
+      setOffset = _useState8[1];
 
     var _useState9 = React.useState(RENDER_STATE.DONE),
       _useState10 = slicedToArray(_useState9, 2),
@@ -1822,7 +2481,16 @@
       needLocationAdd = _useState16[0],
       setNeedLocationAdd = _useState16[1];
 
-    var screenContent = useScreenContent(content, renderContent, renderClampedContent, offset, contentLength, ellipsis);
+    var internalExpanded = useSetExpand(expanded);
+    var screenContent = useScreenContent(
+      content,
+      renderContent,
+      renderClampedContent,
+      offset,
+      contentLength,
+      ellipsis,
+      internalExpanded,
+    );
     var screenMaxHeight = useScreenMaxHeight(internalExpanded, maxHeight);
     /** start rendering * */
 
@@ -1853,7 +2521,7 @@
     React.useEffect(
       function () {
         var contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
-        var screenHeightHasSpace = tagRef.current && tagRef.current.scrollHeight <= tagRef.current.offsetHeight;
+        var screenHeightHasSpace = tagRef.current && tagRef.current.scrollHeight <= getMaxHeightValue(screenMaxHeight);
 
         if (renderLocateState === RENDER_LOCATE_STATE.START || renderLocateState === RENDER_LOCATE_STATE.ADD) {
           if (isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef)) {
@@ -1922,7 +2590,7 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 185,
+          lineNumber: 198,
         },
       },
       screenContent,
@@ -1938,7 +2606,7 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 187,
+          lineNumber: 200,
         },
       },
       contentWrapper,
@@ -1955,7 +2623,7 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 192,
+          lineNumber: 205,
         },
       },
       linesWrapper,
@@ -1999,7 +2667,20 @@
 
   var ClampText = function ClampText(properties) {
     var content = properties.content,
-      restProps = objectWithoutProperties(properties, ['content']);
+      _properties$renderAft = properties.renderAfter,
+      renderAfter =
+        _properties$renderAft === void 0
+          ? function () {
+              return /*#__PURE__*/ React__default.createElement(React.Fragment, {
+                __self: _this$1,
+                __source: {
+                  fileName: _jsxFileName$1,
+                  lineNumber: 18,
+                },
+              });
+            }
+          : _properties$renderAft,
+      restProps = objectWithoutProperties(properties, ['content', 'renderAfter']);
 
     var renderClampedContent = function renderClampedContent(offset, ellipsis) {
       return /*#__PURE__*/ React__default.createElement(
@@ -2008,10 +2689,11 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 18,
+            lineNumber: 24,
           },
         },
         ''.concat(content.slice(0, offset)).concat(ellipsis),
+        renderAfter(true),
       );
     };
 
@@ -2022,10 +2704,11 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 22,
+            lineNumber: 33,
           },
         },
         content,
+        renderAfter(false),
       );
     };
 
@@ -2045,7 +2728,7 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 26,
+            lineNumber: 41,
           },
         },
       ),
@@ -2845,8 +3528,8 @@
 
       var ret = pos({
         type: TYPE_DECLARATION,
-        property: trim(prop[0].replace(COMMENT_REGEX, EMPTY_STRING)),
-        value: val ? trim(val[0].replace(COMMENT_REGEX, EMPTY_STRING)) : EMPTY_STRING,
+        property: trim$1(prop[0].replace(COMMENT_REGEX, EMPTY_STRING)),
+        value: val ? trim$1(val[0].replace(COMMENT_REGEX, EMPTY_STRING)) : EMPTY_STRING,
       });
 
       // ;
@@ -2887,7 +3570,7 @@
    * @param {String} str
    * @return {String}
    */
-  function trim(str) {
+  function trim$1(str) {
     return str ? str.replace(TRIM_REGEX, EMPTY_STRING) : EMPTY_STRING;
   }
 
@@ -3735,7 +4418,20 @@
 
   var ClampInlineHtml = function ClampInlineHtml(properties) {
     var content = properties.content,
-      restProps = objectWithoutProperties(properties, ['content']);
+      _properties$renderAft = properties.renderAfter,
+      renderAfter =
+        _properties$renderAft === void 0
+          ? function () {
+              return /*#__PURE__*/ React__default.createElement(React.Fragment, {
+                __self: _this$2,
+                __source: {
+                  fileName: _jsxFileName$2,
+                  lineNumber: 19,
+                },
+              });
+            }
+          : _properties$renderAft,
+      restProps = objectWithoutProperties(properties, ['content', 'renderAfter']);
 
     var renderClampedContent = function renderClampedContent(offset, ellipsis) {
       var count = 0;
@@ -3746,7 +4442,7 @@
           __self: _this$2,
           __source: {
             fileName: _jsxFileName$2,
-            lineNumber: 22,
+            lineNumber: 27,
           },
         },
         htmlReactParser(content, {
@@ -3757,7 +4453,7 @@
                   __self: this,
                   __source: {
                     fileName: _jsxFileName$2,
-                    lineNumber: 28,
+                    lineNumber: 32,
                   },
                 });
               }
@@ -3775,7 +4471,7 @@
                   __self: this,
                   __source: {
                     fileName: _jsxFileName$2,
-                    lineNumber: 36,
+                    lineNumber: 40,
                   },
                 },
                 domNode.data.slice(0, gap),
@@ -3789,16 +4485,28 @@
             __self: _this$2,
             __source: {
               fileName: _jsxFileName$2,
-              lineNumber: 41,
+              lineNumber: 44,
             },
           },
           ellipsis,
         ),
+        renderAfter(true),
       );
     };
 
     var renderContent = function renderContent() {
-      return htmlReactParser(content);
+      return /*#__PURE__*/ React__default.createElement(
+        React.Fragment,
+        {
+          __self: _this$2,
+          __source: {
+            fileName: _jsxFileName$2,
+            lineNumber: 52,
+          },
+        },
+        htmlReactParser(content),
+        renderAfter(false),
+      );
     };
 
     return /*#__PURE__*/ React__default.createElement(
@@ -3817,7 +4525,7 @@
           __self: _this$2,
           __source: {
             fileName: _jsxFileName$2,
-            lineNumber: 51,
+            lineNumber: 60,
           },
         },
       ),
@@ -3834,13 +4542,18 @@
     'helloworld<span></span><span></span><span style="color: #167781">hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello<i>hellohellohellohellohellohellohellohello</i>hellohello<span>hellohellohellohello</span>hellohello<span>helloworld';
 
   var App = function App() {
+    var _useState = React.useState(false),
+      _useState2 = slicedToArray(_useState, 2),
+      expanded = _useState2[0],
+      setExpended = _useState2[1];
+
     return /*#__PURE__*/ React__default.createElement(
       'div',
       {
         __self: _this$3,
         __source: {
           fileName: _jsxFileName$3,
-          lineNumber: 9,
+          lineNumber: 11,
         },
       },
       /*#__PURE__*/ React__default.createElement(
@@ -3849,7 +4562,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 10,
+            lineNumber: 12,
           },
         },
         'Clamp Text',
@@ -3865,17 +4578,38 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 11,
+            lineNumber: 13,
           },
         },
         /*#__PURE__*/ React__default.createElement(ClampText, {
           content: text,
-          maxHeight: 40,
+          maxHeight: 60,
           maxLines: 2,
+          expanded: expanded,
+          renderAfter: function renderAfter(clamped) {
+            return /*#__PURE__*/ React__default.createElement(
+              'span',
+              {
+                style: {
+                  background: '#61dafb',
+                  padding: '0 4px',
+                },
+                onClick: function onClick() {
+                  setExpended(!!clamped);
+                },
+                __self: _this$3,
+                __source: {
+                  fileName: _jsxFileName$3,
+                  lineNumber: 20,
+                },
+              },
+              clamped ? 'open' : 'close',
+            );
+          },
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 12,
+            lineNumber: 14,
           },
         }),
       ),
@@ -3890,16 +4624,37 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 15,
+            lineNumber: 25,
           },
         },
         /*#__PURE__*/ React__default.createElement(ClampText, {
           content: text,
           maxHeight: 120,
+          expanded: expanded,
+          renderAfter: function renderAfter(clamped) {
+            return /*#__PURE__*/ React__default.createElement(
+              'span',
+              {
+                style: {
+                  background: '#61dafb',
+                  padding: '0 4px',
+                },
+                onClick: function onClick() {
+                  setExpended(!!clamped);
+                },
+                __self: _this$3,
+                __source: {
+                  fileName: _jsxFileName$3,
+                  lineNumber: 31,
+                },
+              },
+              clamped ? 'open' : 'close',
+            );
+          },
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 16,
+            lineNumber: 26,
           },
         }),
       ),
@@ -3914,16 +4669,37 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 19,
+            lineNumber: 36,
           },
         },
         /*#__PURE__*/ React__default.createElement(ClampText, {
           content: text,
           maxLines: 3,
+          expanded: expanded,
+          renderAfter: function renderAfter(clamped) {
+            return /*#__PURE__*/ React__default.createElement(
+              'span',
+              {
+                style: {
+                  background: '#61dafb',
+                  padding: '0 4px',
+                },
+                onClick: function onClick() {
+                  setExpended(!!clamped);
+                },
+                __self: _this$3,
+                __source: {
+                  fileName: _jsxFileName$3,
+                  lineNumber: 42,
+                },
+              },
+              clamped ? 'open' : 'close',
+            );
+          },
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 20,
+            lineNumber: 37,
           },
         }),
       ),
@@ -3933,7 +4709,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 23,
+            lineNumber: 47,
           },
         },
         'Clamp Html',
@@ -3949,16 +4725,37 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 24,
+            lineNumber: 48,
           },
         },
         /*#__PURE__*/ React__default.createElement(ClampInlineHtml, {
           content: html$2,
           maxLines: 3,
+          expanded: expanded,
+          renderAfter: function renderAfter(clamped) {
+            return /*#__PURE__*/ React__default.createElement(
+              'span',
+              {
+                style: {
+                  background: '#61dafb',
+                  padding: '0 4px',
+                },
+                onClick: function onClick() {
+                  setExpended(!!clamped);
+                },
+                __self: _this$3,
+                __source: {
+                  fileName: _jsxFileName$3,
+                  lineNumber: 54,
+                },
+              },
+              clamped ? 'open' : 'close',
+            );
+          },
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 25,
+            lineNumber: 49,
           },
         }),
       ),
@@ -3970,7 +4767,7 @@
       __self: undefined,
       __source: {
         fileName: _jsxFileName$3,
-        lineNumber: 31,
+        lineNumber: 63,
       },
     }),
     document.querySelector('#app'),

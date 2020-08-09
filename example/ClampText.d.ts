@@ -7,6 +7,7 @@ export interface ClampTextProps {
   expanded?: boolean;
   content: string;
   className?: string;
+  renderAfter: (clamped: boolean) => JSX.Element | JSX.Element[];
 }
 declare const ClampText: React.FC<ClampTextProps>;
 export default ClampText;
