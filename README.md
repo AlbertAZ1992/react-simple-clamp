@@ -1,12 +1,13 @@
 # react-simple-clamp
 
-React clamping component, both text and html content support
+React clamping component, supporting both text and html inline content.
 
 ## Features
 
-- both text and html inline content can be clamped
-- configure only with max height and or max lines
-- customizable ellipsis
+- both text and html inline content can be clamped.
+- configure only with max height and or max lines.
+- customizable expand(read more) and or collapse(read less) options.
+- customizable ellipsis.
 
 ## Usage
 
