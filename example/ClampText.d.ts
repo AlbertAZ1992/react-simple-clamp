@@ -6,6 +6,7 @@ export interface ClampTextProps {
   ellipsis?: string;
   expanded?: boolean;
   content: string;
+  className?: string;
 }
 declare const ClampText: React.FC<ClampTextProps>;
 export default ClampText;

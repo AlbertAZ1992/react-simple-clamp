@@ -1707,6 +1707,7 @@
   var RENDER_LOCATE_STATE = {
     START: 'START',
     DONE: 'DONE',
+    ADD: 'ADD',
   };
   var RENDER_FILL_STATE = {
     ASCEND: 'ASCEND ',
@@ -1733,7 +1734,7 @@
   }
 
   function useScreenMaxHeight(internalExpanded, maxHeight) {
-    var _useState = React.useState(''),
+    var _useState = React.useState('none'),
       _useState2 = slicedToArray(_useState, 2),
       screenMaxHeight = _useState2[0],
       setScreenMaxHeight = _useState2[1];
@@ -1741,9 +1742,9 @@
     React.useEffect(
       function () {
         if (internalExpanded) {
-          setScreenMaxHeight('');
+          setScreenMaxHeight('none');
         } else if (!maxHeight) {
-          setScreenMaxHeight('');
+          setScreenMaxHeight('none');
         } else {
           setScreenMaxHeight(typeof maxHeight === 'number' ? ''.concat(maxHeight, 'px') : maxHeight);
         }
@@ -1783,10 +1784,13 @@
       _properties$expanded = properties.expanded,
       expanded = _properties$expanded === void 0 ? false : _properties$expanded,
       renderContent = properties.renderContent,
-      renderClampedContent = properties.renderClampedContent;
+      renderClampedContent = properties.renderClampedContent,
+      _properties$className = properties.className,
+      className = _properties$className === void 0 ? '' : _properties$className;
+    var contentLength = content.length || 0;
     var tagRef = React.useRef();
     var contentRef = React.useRef();
-    var contentLength = content.length || 0;
+    var offsetRef = React.useRef(contentLength);
 
     var _useState5 = React.useState(contentLength),
       _useState6 = slicedToArray(_useState5, 2),
@@ -1812,6 +1816,11 @@
       _useState14 = slicedToArray(_useState13, 2),
       renderFillState = _useState14[0],
       setRenderFillState = _useState14[1];
+
+    var _useState15 = React.useState(true),
+      _useState16 = slicedToArray(_useState15, 2),
+      needLocationAdd = _useState16[0],
+      setNeedLocationAdd = _useState16[1];
 
     var screenContent = useScreenContent(content, renderContent, renderClampedContent, offset, contentLength, ellipsis);
     var screenMaxHeight = useScreenMaxHeight(internalExpanded, maxHeight);
@@ -1844,25 +1853,41 @@
     React.useEffect(
       function () {
         var contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
+        var screenHeightHasSpace = tagRef.current && tagRef.current.scrollHeight <= tagRef.current.offsetHeight;
 
-        if (renderLocateState === RENDER_LOCATE_STATE.START) {
+        if (renderLocateState === RENDER_LOCATE_STATE.START || renderLocateState === RENDER_LOCATE_STATE.ADD) {
           if (isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef)) {
             // need dec
+            if (renderLocateState === RENDER_LOCATE_STATE.ADD) {
+              // is cycle render
+              setNeedLocationAdd(false);
+              setOffset(function (prevOffset) {
+                return ~~(prevOffset - offsetRef.current);
+              });
+            } else {
+              setOffset(function (prevOffset) {
+                return ~~(prevOffset / 2);
+              });
+              offsetRef.current /= 2;
+            }
+          } else if (
+            needLocationAdd &&
+            ((screenMaxHeight !== 'none' && screenHeightHasSpace) || (maxLines && contentLines < maxLines))
+          ) {
+            // need add to reach max-height
+            // need add to reach max-lines
+            setRenderLocateState(RENDER_LOCATE_STATE.ADD);
             setOffset(function (prevOffset) {
-              return ~~(prevOffset / 2);
+              return ~~(prevOffset + offsetRef.current / 2);
             });
-          } else if (contentLines !== maxLines) {
-            // need add
-            setOffset(function (prevOffset) {
-              return ~~(prevOffset + prevOffset / 2);
-            });
+            offsetRef.current /= 2;
           } else {
             setRenderLocateState(RENDER_LOCATE_STATE.DONE);
             setRenderFillState(RENDER_FILL_STATE.ASCEND);
           }
         }
       },
-      [renderLocateState, maxLines, contentRef, screenMaxHeight, screenContent],
+      [renderLocateState, maxLines, contentRef, screenMaxHeight, screenContent, needLocationAdd],
     );
     /** filling process, fill the gap between locate position and clamp position * */
 
@@ -1875,18 +1900,17 @@
             (!isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) || contentLines < 2) &&
             offset < contentLength
           ) {
-            setOffset(offset + 1);
-            console.log(RENDER_FILL_STATE.ASCEND);
+            setOffset(offset + 1); // console.log(RENDER_FILL_STATE.ASCEND);
           } else {
             setRenderFillState(RENDER_FILL_STATE.DESCEND);
           }
         } else if (renderFillState === RENDER_FILL_STATE.DESCEND) {
           if (isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) && contentLines > 1 && offset > 0) {
-            setOffset(offset - 1);
-            console.log(RENDER_FILL_STATE.DESCEND);
+            setOffset(offset - 1); // console.log(RENDER_FILL_STATE.DESCEND);
           } else {
             setRenderFillState(RENDER_FILL_STATE.DONE);
             setRenderState(RENDER_STATE.DONE);
+            offsetRef.current = contentLength;
           }
         }
       },
@@ -1898,7 +1922,7 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 166,
+          lineNumber: 185,
         },
       },
       screenContent,
@@ -1909,11 +1933,12 @@
         ref: contentRef,
         style: {
           boxShadow: 'transparent 0 0',
+          wordBreak: 'break-all',
         },
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 168,
+          lineNumber: 187,
         },
       },
       contentWrapper,
@@ -1921,14 +1946,16 @@
     return /*#__PURE__*/ React__default.createElement(
       'div',
       {
+        className: 'react-simple-clamp '.concat(className),
         ref: tagRef,
         style: {
           overflow: 'hidden',
+          maxHeight: screenMaxHeight,
         },
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 173,
+          lineNumber: 192,
         },
       },
       linesWrapper,
@@ -1981,7 +2008,7 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 17,
+            lineNumber: 18,
           },
         },
         ''.concat(content.slice(0, offset)).concat(ellipsis),
@@ -1995,7 +2022,7 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 21,
+            lineNumber: 22,
           },
         },
         content,
@@ -2018,7 +2045,7 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 25,
+            lineNumber: 26,
           },
         },
       ),
@@ -3713,40 +3740,61 @@
     var renderClampedContent = function renderClampedContent(offset, ellipsis) {
       var count = 0;
       var finished = false;
-      return htmlReactParser(''.concat(content).concat(ellipsis), {
-        replace: function replace(domNode) {
-          if (domNode.type === 'text') {
-            if (count === offset || finished) {
-              return /*#__PURE__*/ React__default.createElement(React.Fragment, {
-                __self: this,
-                __source: {
-                  fileName: _jsxFileName$2,
-                  lineNumber: 24,
-                },
-              });
-            }
-
-            if (count + domNode.data.length <= offset) {
-              count += domNode.data.length;
-              return;
-            }
-
-            var gap = offset - (count + domNode.data.length + offset);
-            finished = true;
-            return /*#__PURE__*/ React__default.createElement(
-              React.Fragment,
-              {
-                __self: this,
-                __source: {
-                  fileName: _jsxFileName$2,
-                  lineNumber: 32,
-                },
-              },
-              domNode.data.slice(0, gap),
-            );
-          }
+      return /*#__PURE__*/ React__default.createElement(
+        React.Fragment,
+        {
+          __self: _this$2,
+          __source: {
+            fileName: _jsxFileName$2,
+            lineNumber: 22,
+          },
         },
-      });
+        htmlReactParser(content, {
+          replace: function replace(domNode) {
+            if (domNode.type === 'text') {
+              if (count === offset || finished) {
+                return /*#__PURE__*/ React__default.createElement(React.Fragment, {
+                  __self: this,
+                  __source: {
+                    fileName: _jsxFileName$2,
+                    lineNumber: 28,
+                  },
+                });
+              }
+
+              if (count + domNode.data.length <= offset) {
+                count += domNode.data.length;
+                return;
+              }
+
+              var gap = offset - (count + domNode.data.length - offset);
+              finished = true;
+              return /*#__PURE__*/ React__default.createElement(
+                React.Fragment,
+                {
+                  __self: this,
+                  __source: {
+                    fileName: _jsxFileName$2,
+                    lineNumber: 36,
+                  },
+                },
+                domNode.data.slice(0, gap),
+              );
+            }
+          },
+        }),
+        /*#__PURE__*/ React__default.createElement(
+          'span',
+          {
+            __self: _this$2,
+            __source: {
+              fileName: _jsxFileName$2,
+              lineNumber: 41,
+            },
+          },
+          ellipsis,
+        ),
+      );
     };
 
     var renderContent = function renderContent() {
@@ -3769,7 +3817,7 @@
           __self: _this$2,
           __source: {
             fileName: _jsxFileName$2,
-            lineNumber: 43,
+            lineNumber: 51,
           },
         },
       ),
@@ -3780,6 +3828,11 @@
 
   var _jsxFileName$3 = '/Users/albertaz/Documents/github/react-simple-clamp/example/demo.jsx';
 
+  var text =
+    'hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello';
+  var html$2 =
+    'helloworld<span></span><span></span><span style="color: #167781">hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello<i>hellohellohellohellohellohellohellohello</i>hellohello<span>hellohellohellohello</span>hellohello<span>helloworld';
+
   var App = function App() {
     return /*#__PURE__*/ React__default.createElement(
       'div',
@@ -3787,33 +3840,11 @@
         __self: _this$3,
         __source: {
           fileName: _jsxFileName$3,
-          lineNumber: 7,
+          lineNumber: 9,
         },
       },
       /*#__PURE__*/ React__default.createElement(
-        'p',
-        {
-          __self: _this$3,
-          __source: {
-            fileName: _jsxFileName$3,
-            lineNumber: 8,
-          },
-        },
-        'ptest 1',
-      ),
-      /*#__PURE__*/ React__default.createElement(ClampText, {
-        content:
-          '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        maxHeight: 40,
-        maxLines: 2,
-        __self: _this$3,
-        __source: {
-          fileName: _jsxFileName$3,
-          lineNumber: 9,
-        },
-      }),
-      /*#__PURE__*/ React__default.createElement(
-        'p',
+        'h2',
         {
           __self: _this$3,
           __source: {
@@ -3821,41 +3852,116 @@
             lineNumber: 10,
           },
         },
-        'test 2',
+        'Clamp Text',
       ),
-      /*#__PURE__*/ React__default.createElement(ClampText, {
-        content:
-          '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        maxHeight: 40,
-        maxLines: 5,
-        __self: _this$3,
-        __source: {
-          fileName: _jsxFileName$3,
-          lineNumber: 11,
-        },
-      }),
       /*#__PURE__*/ React__default.createElement(
-        'p',
+        'div',
         {
+          style: {
+            width: 200,
+            background: '#f5f5f5',
+            marginBottom: 30,
+          },
+          __self: _this$3,
+          __source: {
+            fileName: _jsxFileName$3,
+            lineNumber: 11,
+          },
+        },
+        /*#__PURE__*/ React__default.createElement(ClampText, {
+          content: text,
+          maxHeight: 40,
+          maxLines: 2,
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
             lineNumber: 12,
           },
-        },
-        'test 3',
+        }),
       ),
-      /*#__PURE__*/ React__default.createElement(ClampInlineHtml, {
-        content:
-          'women<span></span><span></span><span style="color: #167781">你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你你好你<i>好你好你</i>好你好你好你好你<span>好你好你好你好</span>你好你好你好你好<span>women',
-        maxHeight: 40,
-        maxLines: 2,
-        __self: _this$3,
-        __source: {
-          fileName: _jsxFileName$3,
-          lineNumber: 13,
+      /*#__PURE__*/ React__default.createElement(
+        'div',
+        {
+          style: {
+            width: 200,
+            background: '#f5f5f5',
+            marginBottom: 30,
+          },
+          __self: _this$3,
+          __source: {
+            fileName: _jsxFileName$3,
+            lineNumber: 15,
+          },
         },
-      }),
+        /*#__PURE__*/ React__default.createElement(ClampText, {
+          content: text,
+          maxHeight: 120,
+          __self: _this$3,
+          __source: {
+            fileName: _jsxFileName$3,
+            lineNumber: 16,
+          },
+        }),
+      ),
+      /*#__PURE__*/ React__default.createElement(
+        'div',
+        {
+          style: {
+            width: 200,
+            background: '#f5f5f5',
+            marginBottom: 30,
+          },
+          __self: _this$3,
+          __source: {
+            fileName: _jsxFileName$3,
+            lineNumber: 19,
+          },
+        },
+        /*#__PURE__*/ React__default.createElement(ClampText, {
+          content: text,
+          maxLines: 3,
+          __self: _this$3,
+          __source: {
+            fileName: _jsxFileName$3,
+            lineNumber: 20,
+          },
+        }),
+      ),
+      /*#__PURE__*/ React__default.createElement(
+        'h2',
+        {
+          __self: _this$3,
+          __source: {
+            fileName: _jsxFileName$3,
+            lineNumber: 23,
+          },
+        },
+        'Clamp Html',
+      ),
+      /*#__PURE__*/ React__default.createElement(
+        'div',
+        {
+          style: {
+            width: 200,
+            background: '#f5f5f5',
+            marginBottom: 30,
+          },
+          __self: _this$3,
+          __source: {
+            fileName: _jsxFileName$3,
+            lineNumber: 24,
+          },
+        },
+        /*#__PURE__*/ React__default.createElement(ClampInlineHtml, {
+          content: html$2,
+          maxLines: 3,
+          __self: _this$3,
+          __source: {
+            fileName: _jsxFileName$3,
+            lineNumber: 25,
+          },
+        }),
+      ),
     );
   };
 
@@ -3864,7 +3970,7 @@
       __self: undefined,
       __source: {
         fileName: _jsxFileName$3,
-        lineNumber: 18,
+        lineNumber: 31,
       },
     }),
     document.querySelector('#app'),

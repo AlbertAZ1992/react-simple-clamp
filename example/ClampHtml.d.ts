@@ -6,6 +6,7 @@ export interface ClampInlineHtmlProps {
   ellipsis?: string;
   expanded?: boolean;
   content: string;
+  className?: string;
 }
 declare const ClampInlineHtml: React.FC<ClampInlineHtmlProps>;
 export default ClampInlineHtml;
