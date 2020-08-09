@@ -2330,6 +2330,83 @@
     }
   });
 
+  function _arrayWithHoles$1(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
+  var arrayWithHoles$1 = _arrayWithHoles$1;
+
+  function _iterableToArrayLimit$1(arr, i) {
+    if (typeof Symbol === 'undefined' || !(Symbol.iterator in Object(arr))) return;
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i['return'] != null) _i['return']();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  var iterableToArrayLimit$1 = _iterableToArrayLimit$1;
+
+  function _arrayLikeToArray$1(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  }
+
+  var arrayLikeToArray$1 = _arrayLikeToArray$1;
+
+  function _unsupportedIterableToArray$1(o, minLen) {
+    if (!o) return;
+    if (typeof o === 'string') return arrayLikeToArray$1(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === 'Object' && o.constructor) n = o.constructor.name;
+    if (n === 'Map' || n === 'Set') return Array.from(o);
+    if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return arrayLikeToArray$1(o, minLen);
+  }
+
+  var unsupportedIterableToArray$1 = _unsupportedIterableToArray$1;
+
+  function _nonIterableRest$1() {
+    throw new TypeError(
+      'Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.',
+    );
+  }
+
+  var nonIterableRest$1 = _nonIterableRest$1;
+
+  function _slicedToArray$1(arr, i) {
+    return (
+      arrayWithHoles$1(arr) ||
+      iterableToArrayLimit$1(arr, i) ||
+      unsupportedIterableToArray$1(arr, i) ||
+      nonIterableRest$1()
+    );
+  }
+
+  var slicedToArray$1 = _slicedToArray$1;
+
   var _this = undefined;
 
   var _jsxFileName = '/Users/albertaz/Documents/github/react-simple-clamp/src/clamp.tsx';
@@ -2376,7 +2453,7 @@
 
   function useScreenMaxHeight(internalExpanded, maxHeight) {
     var _useState = React.useState('none'),
-      _useState2 = slicedToArray(_useState, 2),
+      _useState2 = slicedToArray$1(_useState, 2),
       screenMaxHeight = _useState2[0],
       setScreenMaxHeight = _useState2[1];
 
@@ -2407,7 +2484,7 @@
     var _useState3 = React.useState(function () {
         return renderContent();
       }),
-      _useState4 = slicedToArray(_useState3, 2),
+      _useState4 = slicedToArray$1(_useState3, 2),
       screenContent = _useState4[0],
       setScreenContent = _useState4[1];
 
@@ -2426,7 +2503,7 @@
 
   function useSetExpand(expanded) {
     var _useState5 = React.useState(expanded),
-      _useState6 = slicedToArray(_useState5, 2),
+      _useState6 = slicedToArray$1(_useState5, 2),
       internalExpanded = _useState6[0],
       setInternalExpanded = _useState6[1];
 
@@ -2457,27 +2534,27 @@
     var offsetRef = React.useRef(contentLength);
 
     var _useState7 = React.useState(contentLength),
-      _useState8 = slicedToArray(_useState7, 2),
+      _useState8 = slicedToArray$1(_useState7, 2),
       offset = _useState8[0],
       setOffset = _useState8[1];
 
     var _useState9 = React.useState(RENDER_STATE.DONE),
-      _useState10 = slicedToArray(_useState9, 2),
+      _useState10 = slicedToArray$1(_useState9, 2),
       renderState = _useState10[0],
       setRenderState = _useState10[1];
 
     var _useState11 = React.useState(RENDER_LOCATE_STATE.DONE),
-      _useState12 = slicedToArray(_useState11, 2),
+      _useState12 = slicedToArray$1(_useState11, 2),
       renderLocateState = _useState12[0],
       setRenderLocateState = _useState12[1];
 
     var _useState13 = React.useState(RENDER_FILL_STATE.DONE),
-      _useState14 = slicedToArray(_useState13, 2),
+      _useState14 = slicedToArray$1(_useState13, 2),
       renderFillState = _useState14[0],
       setRenderFillState = _useState14[1];
 
     var _useState15 = React.useState(true),
-      _useState16 = slicedToArray(_useState15, 2),
+      _useState16 = slicedToArray$1(_useState15, 2),
       needLocationAdd = _useState16[0],
       setNeedLocationAdd = _useState16[1];
 
@@ -2590,7 +2667,7 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 198,
+          lineNumber: 210,
         },
       },
       screenContent,
@@ -2606,7 +2683,7 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 200,
+          lineNumber: 212,
         },
       },
       contentWrapper,
@@ -2623,7 +2700,7 @@
         __self: _this,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 205,
+          lineNumber: 217,
         },
       },
       linesWrapper,
@@ -2675,7 +2752,7 @@
                 __self: _this$1,
                 __source: {
                   fileName: _jsxFileName$1,
-                  lineNumber: 18,
+                  lineNumber: 16,
                 },
               });
             }
@@ -2689,7 +2766,7 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 24,
+            lineNumber: 20,
           },
         },
         ''.concat(content.slice(0, offset)).concat(ellipsis),
@@ -2704,7 +2781,7 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 33,
+            lineNumber: 29,
           },
         },
         content,
@@ -2728,7 +2805,7 @@
           __self: _this$1,
           __source: {
             fileName: _jsxFileName$1,
-            lineNumber: 41,
+            lineNumber: 37,
           },
         },
       ),
@@ -3820,10 +3897,10 @@
   function domToReact(nodes, options) {
     options = options || {};
 
-    var React = options.library || React__default;
-    var cloneElement = React.cloneElement;
-    var createElement = React.createElement;
-    var isValidElement = React.isValidElement;
+    var React$1 = options.library || React__default;
+    var cloneElement = React$1.cloneElement;
+    var createElement = React$1.createElement;
+    var isValidElement = React$1.isValidElement;
 
     var result = [];
     var node;
@@ -4426,7 +4503,7 @@
                 __self: _this$2,
                 __source: {
                   fileName: _jsxFileName$2,
-                  lineNumber: 19,
+                  lineNumber: 17,
                 },
               });
             }
@@ -4442,7 +4519,7 @@
           __self: _this$2,
           __source: {
             fileName: _jsxFileName$2,
-            lineNumber: 27,
+            lineNumber: 23,
           },
         },
         htmlReactParser(content, {
@@ -4453,7 +4530,7 @@
                   __self: this,
                   __source: {
                     fileName: _jsxFileName$2,
-                    lineNumber: 32,
+                    lineNumber: 28,
                   },
                 });
               }
@@ -4471,7 +4548,7 @@
                   __self: this,
                   __source: {
                     fileName: _jsxFileName$2,
-                    lineNumber: 40,
+                    lineNumber: 36,
                   },
                 },
                 domNode.data.slice(0, gap),
@@ -4485,7 +4562,7 @@
             __self: _this$2,
             __source: {
               fileName: _jsxFileName$2,
-              lineNumber: 44,
+              lineNumber: 40,
             },
           },
           ellipsis,
@@ -4501,7 +4578,7 @@
           __self: _this$2,
           __source: {
             fileName: _jsxFileName$2,
-            lineNumber: 52,
+            lineNumber: 48,
           },
         },
         htmlReactParser(content),
@@ -4525,7 +4602,7 @@
           __self: _this$2,
           __source: {
             fileName: _jsxFileName$2,
-            lineNumber: 60,
+            lineNumber: 56,
           },
         },
       ),
@@ -4535,7 +4612,6 @@
   var _this$3 = undefined;
 
   var _jsxFileName$3 = '/Users/albertaz/Documents/github/react-simple-clamp/example/demo.jsx';
-
   var text =
     'hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello';
   var html$2 =
@@ -4553,7 +4629,7 @@
         __self: _this$3,
         __source: {
           fileName: _jsxFileName$3,
-          lineNumber: 11,
+          lineNumber: 10,
         },
       },
       /*#__PURE__*/ React__default.createElement(
@@ -4562,7 +4638,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 12,
+            lineNumber: 11,
           },
         },
         'Clamp Text',
@@ -4578,7 +4654,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 13,
+            lineNumber: 12,
           },
         },
         /*#__PURE__*/ React__default.createElement(ClampText, {
@@ -4600,7 +4676,7 @@
                 __self: _this$3,
                 __source: {
                   fileName: _jsxFileName$3,
-                  lineNumber: 20,
+                  lineNumber: 19,
                 },
               },
               clamped ? 'open' : 'close',
@@ -4609,7 +4685,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 14,
+            lineNumber: 13,
           },
         }),
       ),
@@ -4624,7 +4700,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 25,
+            lineNumber: 24,
           },
         },
         /*#__PURE__*/ React__default.createElement(ClampText, {
@@ -4645,7 +4721,7 @@
                 __self: _this$3,
                 __source: {
                   fileName: _jsxFileName$3,
-                  lineNumber: 31,
+                  lineNumber: 30,
                 },
               },
               clamped ? 'open' : 'close',
@@ -4654,7 +4730,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 26,
+            lineNumber: 25,
           },
         }),
       ),
@@ -4669,7 +4745,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 36,
+            lineNumber: 35,
           },
         },
         /*#__PURE__*/ React__default.createElement(ClampText, {
@@ -4690,7 +4766,7 @@
                 __self: _this$3,
                 __source: {
                   fileName: _jsxFileName$3,
-                  lineNumber: 42,
+                  lineNumber: 41,
                 },
               },
               clamped ? 'open' : 'close',
@@ -4699,7 +4775,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 37,
+            lineNumber: 36,
           },
         }),
       ),
@@ -4709,7 +4785,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 47,
+            lineNumber: 46,
           },
         },
         'Clamp Html',
@@ -4725,7 +4801,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 48,
+            lineNumber: 47,
           },
         },
         /*#__PURE__*/ React__default.createElement(ClampInlineHtml, {
@@ -4746,7 +4822,7 @@
                 __self: _this$3,
                 __source: {
                   fileName: _jsxFileName$3,
-                  lineNumber: 54,
+                  lineNumber: 53,
                 },
               },
               clamped ? 'open' : 'close',
@@ -4755,7 +4831,7 @@
           __self: _this$3,
           __source: {
             fileName: _jsxFileName$3,
-            lineNumber: 49,
+            lineNumber: 48,
           },
         }),
       ),
@@ -4767,9 +4843,10 @@
       __self: undefined,
       __source: {
         fileName: _jsxFileName$3,
-        lineNumber: 63,
+        lineNumber: 62,
       },
     }),
     document.querySelector('#app'),
   );
 });
+//# sourceMappingURL=index.js.map

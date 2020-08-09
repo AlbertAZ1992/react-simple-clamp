@@ -9,6 +9,20 @@ React clamping component, supporting both text and html inline content.
 - customizable expand(read more) and or collapse(read less) options.
 - customizable ellipsis.
 
+## Installation
+
+Yarn:
+
+```bash
+yarn add react-simple-clamp
+```
+
+NPM:
+
+```bash
+npm install react-simple-clamp
+```
+
 ## Usage
 
 ### clamp normal text
