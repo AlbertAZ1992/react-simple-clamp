@@ -77,20 +77,23 @@
   },
   "scripts": {
     "commit": "git-cz",
-    "lint": "yarn run lint-eslint && yarn run lint-stylelint",
+    "lint": "npm run lint-eslint && npm run lint-stylelint",
     "lint-eslint": "eslint -c .eslintrc.js --ext .ts,.tsx,.js {src,scripts}/**/*.{ts,tsx,js}",
     "lint-stylelint": "stylelint --config .stylelintrc.json src/**/*.less --syntax less",
-    "dev": "yarn run build && rollup -w -c ./scripts/dev.js",
-    "build": "rollup -c ./scripts/rollup.config.js",
-    "api": "api-extractor run",
+    "dev": "npm run build && rollup -w -c ./scripts/dev.js",
+    "build": "rollup -c ./scripts/rollup.config.js && npm run clean-typings",
     "clean": "rm -rf ./dist/ ./es/ ./lib/",
+    "clean-typings": "node ./scripts/cleanTypings.js",
     "release": "standard-version",
-    "release-patch": "yarn run release -- --release-as patch",
-    "release-minor": "yarn run release -- --release-as minor",
-    "release-major": "yarn run release -- --release-as major",
-    "prepublishOnly": "yarn run build",
-    "postpublish": "yarn run clean",
-    "push": "git push --follow-tags origin master && yarn run publish"
+    "release-patch": "npm run release -- --release-as patch",
+    "release-minor": "npm run release -- --release-as minor",
+    "release-major": "npm run release -- --release-as major",
+    "prepublishOnly": "npm run build",
+    "postpublish": "npm run clean",
+    "push": "git push --follow-tags origin master && npm publish"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.com/"
   },
   "husky": {
     "hooks": {

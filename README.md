@@ -88,6 +88,8 @@ const App = () => (
 ReactDOM.render(<App />, document.querySelector('#app'));
 ```
 
+[demo](https://codesandbox.io/s/react-simple-clamp-demo-wnhzi)
+
 ## API
 
 Both default `Clamp` (`ClampText`) and `ClampHtml` have same props

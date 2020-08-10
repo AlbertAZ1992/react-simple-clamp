@@ -60,7 +60,7 @@ const config = outputs.map((output, i) => {
         exclude: 'node_modules/**',
         babelHelpers: 'runtime',
       }),
-      progress({ clearLine: false }),
+      progress(),
       ...(isUglify ? [terser()] : []),
     ],
     external: !isExternal ? false : ['react', 'react-dom'],
