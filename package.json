@@ -1,11 +1,11 @@
 {
   "name": "react-simple-clamp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "React clamping component, supporting both text and html inline content.",
   "main": "lib/index.js",
   "module": "es/index.js",
   "unpkg": "dist/index.min.js",
-  "types": "es/index.d.ts",
+  "typings": "lib/index.d.ts",
   "files": [
     "dist",
     "es",
@@ -82,6 +82,7 @@
     "lint-stylelint": "stylelint --config .stylelintrc.json src/**/*.less --syntax less",
     "dev": "yarn run build && rollup -w -c ./scripts/dev.js",
     "build": "rollup -c ./scripts/rollup.config.js",
+    "api": "api-extractor run",
     "clean": "rm -rf ./dist/ ./es/ ./lib/",
     "release": "standard-version",
     "release-patch": "yarn run release -- --release-as patch",
