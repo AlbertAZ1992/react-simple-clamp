@@ -1,4 +1,5 @@
 import path from 'path';
+import { DEFAULT_EXTENSIONS } from '@babel/core';
 import autoprefixer from 'autoprefixer';
 import postcss from 'rollup-plugin-postcss';
 import progress from 'rollup-plugin-progress';
@@ -7,28 +8,24 @@ import babel from '@rollup/plugin-babel';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
-import sucrase from '@rollup/plugin-sucrase';
+// import sucrase from '@rollup/plugin-sucrase';
+import typescriptEngine from 'typescript';
 import json from '@rollup/plugin-json';
 
 import pkg from '../package.json';
-
-const extensions = ['.js', '.jsx', '.ts', '.tsx'];
 
 const outputs = [
   {
     file: path.resolve(__dirname, '..', pkg.main),
     format: 'umd',
     name: 'ReactSimpleClamp',
+    isExternal: true,
+    isUglify: true,
   },
   {
     file: path.resolve(__dirname, '..', pkg.module),
     format: 'es',
     isExternal: true,
-  },
-  {
-    file: path.resolve(__dirname, '..', pkg.unpkg),
-    format: 'iife',
-    name: 'ReactSimpleClamp',
     isUglify: true,
   },
 ];
@@ -41,7 +38,7 @@ const config = outputs.map((output, i) => {
     output,
     plugins: [
       json(),
-      nodeResolve({ extensions, browser: true }),
+      nodeResolve({ browser: true }),
       commonjs(),
       postcss({
         extract: false,
@@ -49,13 +46,21 @@ const config = outputs.map((output, i) => {
         extensions: ['.css', '.less'],
         plugins: [autoprefixer],
       }),
-      typescript(),
-      sucrase({
-        exclude: ['node_modules/**'],
-        transforms: ['typescript', 'jsx'],
+      typescript({
+        tsconfig: path.resolve(__dirname, '..', 'tsconfig.json'),
+        useTsconfigDeclarationDir: true,
+        // declarationDir: path.resolve(__dirname, '..', pkg.main, 'types'),
+        typescript: typescriptEngine,
+        include: ['*.js+(|x)', '**/*.js+(|x)'],
+        exclude: ['coverage', 'config', 'dist', 'node_modules/**', '*.test.{js+(|x), ts+(|x)}', '**/*.test.{js+(|x), ts+(|x)}'],
       }),
+      // typescript(),
+      // sucrase({
+      //   exclude: ['node_modules/**'],
+      //   transforms: ['typescript', 'jsx'],
+      // }),
       babel({
-        extensions,
+        extensions: [...DEFAULT_EXTENSIONS, '.ts', 'tsx'],
         include: ['src/**/*'],
         exclude: 'node_modules/**',
         babelHelpers: 'runtime',

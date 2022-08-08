@@ -1,16 +1,27 @@
 name: CI
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    name: Build
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: yarn
+      - name: Set node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
 
-      - name: Build
-        run: yarn build
+      - name: Install dependencies
+        run: npm iinstall
+
+      - name: Lint
+        run: npm run lint

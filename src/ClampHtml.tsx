@@ -13,6 +13,13 @@ export interface ClampInlineHtmlProps {
   renderAfter: (clamped: boolean) => JSX.Element | JSX.Element[];
 }
 
+const defaultProps: Partial<ClampInlineHtmlProps> = {
+  autoresize: false,
+  ellipsis: '',
+  expanded: false,
+  className: '',
+};
+
 const ClampInlineHtml: React.FC<ClampInlineHtmlProps> = (properties) => {
   const { content, renderAfter = () => <Fragment />, ...restProps } = properties;
 
@@ -56,5 +63,7 @@ const ClampInlineHtml: React.FC<ClampInlineHtmlProps> = (properties) => {
     <Clamp content={content} renderContent={renderContent} renderClampedContent={renderClampedContent} {...restProps} />
   );
 };
+
+ClampInlineHtml.defaultProps = defaultProps;
 
 export default ClampInlineHtml;

@@ -12,6 +12,14 @@ export interface ReactSimpleClampProps<T> {
   renderClampedContent: (offset: number, ellipsis: string) => JSX.Element | JSX.Element[];
 }
 
+const defaultProps: Partial<ReactSimpleClampProps<string | Array<string>>> = {
+  autoresize: false,
+  ellipsis: '',
+  expanded: false,
+  className: '',
+};
+
+
 const RENDER_STATE = {
   START: 'START',
   DONE: 'DONE',
@@ -223,5 +231,7 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
     </div>
   );
 };
+
+ReactSimpleClamp.defaultProps = defaultProps;
 
 export default ReactSimpleClamp;

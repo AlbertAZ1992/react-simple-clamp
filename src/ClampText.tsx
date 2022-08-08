@@ -12,6 +12,13 @@ export interface ClampTextProps {
   renderAfter: (clamped: boolean) => JSX.Element | JSX.Element[];
 }
 
+const defaultProps: Partial<ClampTextProps> = {
+  autoresize: false,
+  ellipsis: '',
+  expanded: false,
+  className: '',
+};
+
 const ClampText: React.FC<ClampTextProps> = (properties) => {
   const { content, renderAfter = () => <Fragment />, ...restProps } = properties;
 
@@ -37,5 +44,7 @@ const ClampText: React.FC<ClampTextProps> = (properties) => {
     <Clamp content={content} renderContent={renderContent} renderClampedContent={renderClampedContent} {...restProps} />
   );
 };
+
+ClampText.defaultProps = defaultProps;
 
 export default ClampText;
