@@ -47,6 +47,9 @@ const config = outputs.map((output, i) => {
         plugins: [autoprefixer],
       }),
       typescript({
+        tsconfig: path.resolve(__dirname, '..', 'tsconfig.json'),
+        useTsconfigDeclarationDir: true,
+        // declarationDir: path.resolve(__dirname, '..', pkg.main, 'types'),
         typescript: typescriptEngine,
         include: ['*.js+(|x)', '**/*.js+(|x)'],
         exclude: ['coverage', 'config', 'dist', 'node_modules/**', '*.test.{js+(|x), ts+(|x)}', '**/*.test.{js+(|x), ts+(|x)}'],

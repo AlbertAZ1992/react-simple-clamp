@@ -66,6 +66,7 @@ module.exports = {
     'jsx-a11y/click-events-have-key-events': OFF,
     'react/jsx-fragments': OFF,
     'react/jsx-props-no-spreading': OFF,
+    'react/no-unused-prop-types': OFF,
     'func-names': OFF,
     'lines-between-class-members': OFF,
     'max-classes-per-file': OFF,
