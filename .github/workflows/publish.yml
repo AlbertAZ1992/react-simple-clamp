@@ -30,4 +30,4 @@ jobs:
       - name: Publish to NPM
         run: npm publish
         env:
-          GITHUB_TOKEN: ${{secrets.NPM_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
