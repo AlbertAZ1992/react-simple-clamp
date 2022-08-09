@@ -110,7 +110,7 @@
     "test:coverage": "jest --coverage --forceExit --colors --passWithNoTests"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.com/"
+    "registry": "https://registry.npmjs.org/"
   },
   "bugs": {
     "url": "https://github.com/AlbertAZ1992/react-simple-clamp/issues"
