@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/AlbertAZ1992/react-simple-clamp/compare/v1.1.0...v1.4.0) (2022-08-09)
+
+
+### Features
+
+* add default content ([eb7b5f5](https://github.com/AlbertAZ1992/react-simple-clamp/commit/eb7b5f5b59f7ee1519c7fb99bf73610cb08ac75d))
+
+## [1.3.0](https://github.com/AlbertAZ1992/react-simple-clamp/compare/v1.1.0...v1.3.0) (2022-08-09)
+
+
+### Features
+
+* add default content ([eb7b5f5](https://github.com/AlbertAZ1992/react-simple-clamp/commit/eb7b5f5b59f7ee1519c7fb99bf73610cb08ac75d))
+
+## [1.2.0](https://github.com/AlbertAZ1992/react-simple-clamp/compare/v1.1.0...v1.2.0) (2022-08-09)
+
+
+### Features
+
+* add default content ([eb7b5f5](https://github.com/AlbertAZ1992/react-simple-clamp/commit/eb7b5f5b59f7ee1519c7fb99bf73610cb08ac75d))
+
 ## [1.1.0](https://github.com/AlbertAZ1992/react-simple-clamp/compare/v1.0.5...v1.1.0) (2020-08-10)
 
 ### [1.0.6](https://github.com/AlbertAZ1992/react-simple-clamp/compare/v1.0.5...v1.0.6) (2020-08-10)
