@@ -20,7 +20,7 @@ const defaultProps: Partial<ClampTextProps> = {
 };
 
 const ClampText: React.FC<ClampTextProps> = (properties) => {
-  const { content, renderAfter = () => <Fragment />, ...restProps } = properties;
+  const { content = '', renderAfter = () => <Fragment />, ...restProps } = properties;
 
   const renderClampedContent = (offset: number, ellipsis: string) => {
     return (

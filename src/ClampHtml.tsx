@@ -21,7 +21,7 @@ const defaultProps: Partial<ClampInlineHtmlProps> = {
 };
 
 const ClampInlineHtml: React.FC<ClampInlineHtmlProps> = (properties) => {
-  const { content, renderAfter = () => <Fragment />, ...restProps } = properties;
+  const { content = '', renderAfter = () => <Fragment />, ...restProps } = properties;
 
   const renderClampedContent = (offset: number, ellipsis: string) => {
     let count = 0;
