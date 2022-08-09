@@ -30,13 +30,13 @@ const options = {
       format: 'umd',
       name: 'index',
       sourcemap: true,
+      globals: {
+        'react': 'React',
+        'react-dom': 'ReactDOM',
+      },
     },
   ],
   external: ['react', 'react-dom'],
-  globals: {
-    react: 'React',
-    'react-dom': 'ReactDOM',
-  },
   plugins: [
     json(),
     nodeResolve({ extensions, browser: true }),
@@ -61,7 +61,7 @@ const options = {
     progress({ clearLine: false }),
     serve({
       port: PORT,
-      contentBase: [path.resolve('example'), path.resolve('es')],
+      contentBase: [path.resolve('example'), path.resolve('dist')],
       historyApiFallback: true, // Set to true to return index.html instead of 404
     }),
     livereload(),

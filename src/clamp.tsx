@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 
 export interface ReactSimpleClampProps<T> {
   autoresize?: boolean;
@@ -67,7 +67,7 @@ function isOverFlow(
 function useScreenMaxHeight(internalExpanded: boolean, maxHeight: number | string): string {
   const [screenMaxHeight, setScreenMaxHeight] = useState<string>('none');
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (internalExpanded) {
       setScreenMaxHeight('none');
     } else if (!maxHeight) {
@@ -91,7 +91,7 @@ function useScreenContent(
 ): JSX.Element | JSX.Element[] {
   const [screenContent, setScreenContent] = useState<JSX.Element | JSX.Element[]>(() => renderContent());
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!contentLength || internalExpanded) {
       setScreenContent(renderContent());
     } else if (offset !== contentLength) {
@@ -145,7 +145,7 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
   const screenMaxHeight = useScreenMaxHeight(internalExpanded, maxHeight);
 
   /** start rendering * */
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       !internalExpanded &&
       isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) &&
@@ -156,14 +156,14 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
   }, [maxLines, maxHeight, ellipsis, internalExpanded, renderState, screenMaxHeight]);
 
   /** start locating * */
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (renderState === RENDER_STATE.START) {
       setRenderLocateState(RENDER_LOCATE_STATE.START);
     }
   }, [renderState, contentLength]);
 
   /** locating process，find the locate position before clamp position as soon as posible * */
-  useEffect(() => {
+  useLayoutEffect(() => {
     const contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
     const screenHeightHasSpace = tagRef.current && tagRef.current.scrollHeight <= getMaxHeightValue(screenMaxHeight);
     if (renderLocateState === RENDER_LOCATE_STATE.START || renderLocateState === RENDER_LOCATE_STATE.ADD) {
@@ -194,7 +194,7 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
   }, [renderLocateState, maxLines, contentRef, screenMaxHeight, screenContent, needLocationAdd]);
 
   /** filling process, fill the gap between locate position and clamp position * */
-  useEffect(() => {
+  useLayoutEffect(() => {
     const contentLines = contentRef.current ? contentRef.current.getClientRects().length : 0;
     if (renderFillState === RENDER_FILL_STATE.ASCEND) {
       if ((!isOverFlow(maxLines, screenMaxHeight, tagRef, contentRef) || contentLines < 2) && offset < contentLength) {

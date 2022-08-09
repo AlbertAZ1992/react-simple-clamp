@@ -19,20 +19,24 @@ const outputs = [
     file: path.resolve(__dirname, '..', pkg.main),
     format: 'umd',
     name: 'ReactSimpleClamp',
-    isExternal: true,
-    isUglify: true,
+    exports: 'named',
+    globals: {
+      'react': 'React',
+      'react-dom': 'ReactDOM',
+    },
   },
   {
     file: path.resolve(__dirname, '..', pkg.module),
     format: 'es',
-    isExternal: true,
-    isUglify: true,
+    exports: 'named',
+    globals: {
+      'react': 'React',
+      'react-dom': 'ReactDOM',
+    },
   },
 ];
 
 const config = outputs.map((output, i) => {
-  const isUglify = output.isUglify || false;
-  const isExternal = output.isExternal || false;
   return {
     input: 'src/index.tsx',
     output,
@@ -49,16 +53,10 @@ const config = outputs.map((output, i) => {
       typescript({
         tsconfig: path.resolve(__dirname, '..', 'tsconfig.json'),
         useTsconfigDeclarationDir: true,
-        // declarationDir: path.resolve(__dirname, '..', pkg.main, 'types'),
         typescript: typescriptEngine,
         include: ['*.js+(|x)', '**/*.js+(|x)'],
         exclude: ['coverage', 'config', 'dist', 'node_modules/**', '*.test.{js+(|x), ts+(|x)}', '**/*.test.{js+(|x), ts+(|x)}'],
       }),
-      // typescript(),
-      // sucrase({
-      //   exclude: ['node_modules/**'],
-      //   transforms: ['typescript', 'jsx'],
-      // }),
       babel({
         extensions: [...DEFAULT_EXTENSIONS, '.ts', 'tsx'],
         include: ['src/**/*'],
@@ -66,15 +64,9 @@ const config = outputs.map((output, i) => {
         babelHelpers: 'runtime',
       }),
       progress(),
-      ...(isUglify ? [terser()] : []),
+      terser(),
     ],
-    external: !isExternal ? false : ['react', 'react-dom'],
-    globals: !isExternal
-      ? false
-      : {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-        },
+    external: ['react', 'react-dom'],
   };
 });
 
