@@ -9,8 +9,8 @@
     "dist"
   ],
   "engines": {
-    "node": ">=14",
-    "npm": ">=6"
+    "node": ">=16",
+    "npm": ">=8"
   },
   "repository": "https://github.com/AlbertAZ1992/react-simple-clamp.git",
   "author": {
