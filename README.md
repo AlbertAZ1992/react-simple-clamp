@@ -1,13 +1,20 @@
-# react-simple-clamp
+<p align="center">
+  <h1 align="center">react-simple-clamp</h1>
+</p>
+
+<p align="center">
+  <a aria-label="Released version" target="_blank" href="https://github.com/AlbertAZ1992/react-simple-clamp/releases">
+    <img alt="GitHub tag (latest SemVer)" src="https://img.shields.io/github/v/tag/AlbertAZ1992/react-simple-clamp?color=5FAE9B&label=Released&sort=semver&style=for-the-badge">
+  </a>
+  <a aria-label="Download" href="https://www.npmjs.com/package/react-simple-clamp">
+    <img alt="Npm" src="https://img.shields.io/npm/dm/react-simple-clamp?color=%23EEC578&style=for-the-badge">
+  </a>
+  <a aria-label="Minified Gzip" href="https://bundlephobia.com/result?p=react-simple-clamp">
+    <img alt="Minified Gzip" src="https://img.shields.io/bundlephobia/minzip/react-simple-clamp?color=F47983&style=for-the-badge">
+  </a>
+</p>
 
 React clamping component, supporting both text and html inline content.
-
-[![released](https://img.shields.io/github/release/AlbertAZ1992/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
-[![download](https://img.shields.io/npm/dm/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
-[![minified + gzip](https://img.shields.io/bundlephobia/minzip/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
-[![tree-shakeable](https://img.shields.io/bundlephobia/tree-shaking/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
-[![no dependencies](https://img.shields.io/bundlephobia/dependency-count/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
-
 
 ## Features
 
