@@ -1,6 +1,6 @@
 {
   "name": "react-simple-clamp",
-  "version": "1.4.0",
+  "version": "1.2.0",
   "description": "React clamping component, supporting both text and html inline content.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
