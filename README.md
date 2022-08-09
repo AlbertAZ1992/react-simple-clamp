@@ -2,11 +2,11 @@
 
 React clamping component, supporting both text and html inline content.
 
-![released](https://badgen.net/github/release/AlbertAZ1992/react-simple-clamp)
-![download](https://badgen.net/npm/dm/react-simple-clamp)
-[![minified + gzip](https://badgen.net/bundlephobia/minzip/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
-[![tree-shakeable](https://badgen.net/bundlephobia/tree-shaking/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
-[![no dependencies](https://badgen.net/bundlephobia/dependency-count/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
+[![released](https://img.shields.io/github/release/AlbertAZ1992/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
+[![download](https://img.shields.io/npm/dm/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
+[![minified + gzip](https://img.shields.io/bundlephobia/minzip/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
+[![tree-shakeable](https://img.shields.io/bundlephobia/tree-shaking/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
+[![no dependencies](https://img.shields.io/bundlephobia/dependency-count/react-simple-clamp)](https://bundlephobia.com/result?p=react-simple-clamp)
 
 
 ## Features
