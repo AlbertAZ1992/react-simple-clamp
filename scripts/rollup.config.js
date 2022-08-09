@@ -1,14 +1,11 @@
 import path from 'path';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
-import autoprefixer from 'autoprefixer';
-import postcss from 'rollup-plugin-postcss';
 import progress from 'rollup-plugin-progress';
 import { terser } from 'rollup-plugin-terser';
 import babel from '@rollup/plugin-babel';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
-// import sucrase from '@rollup/plugin-sucrase';
 import typescriptEngine from 'typescript';
 import json from '@rollup/plugin-json';
 
@@ -42,14 +39,8 @@ const config = outputs.map((output, i) => {
     output,
     plugins: [
       json(),
-      nodeResolve({ browser: true }),
       commonjs(),
-      postcss({
-        extract: false,
-        minimize: true,
-        extensions: ['.css', '.less'],
-        plugins: [autoprefixer],
-      }),
+      nodeResolve({ browser: true }),
       typescript({
         tsconfig: path.resolve(__dirname, '..', 'tsconfig.json'),
         useTsconfigDeclarationDir: true,

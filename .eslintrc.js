@@ -75,6 +75,7 @@ module.exports = {
     'no-bitwise': OFF,
     'no-param-reassign': OFF,
     'no-plusplus': OFF,
+    'no-continue': OFF,
     'no-underscore-dangle': OFF,
     'no-unused-expressions': OFF,
     'no-useless-constructor': OFF,

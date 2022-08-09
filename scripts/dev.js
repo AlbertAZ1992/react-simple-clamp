@@ -1,13 +1,10 @@
 import path from 'path';
 import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
-import autoprefixer from 'autoprefixer';
-import postcss from 'rollup-plugin-postcss';
 import progress from 'rollup-plugin-progress';
 import babel from '@rollup/plugin-babel';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import typescript from 'rollup-plugin-typescript2';
 import sucrase from '@rollup/plugin-sucrase';
 import json from '@rollup/plugin-json';
 
@@ -41,16 +38,9 @@ const options = {
     json(),
     nodeResolve({ extensions, browser: true }),
     commonjs(),
-    postcss({
-      extract: false,
-      minimize: true,
-      extensions: ['.css', '.less'],
-      plugins: [autoprefixer],
-    }),
-    typescript(),
     sucrase({
       exclude: ['node_modules/**'],
-      transforms: ['typescript', 'jsx'],
+      transforms: ['jsx'],
     }),
     babel({
       extensions,
