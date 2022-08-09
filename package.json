@@ -94,7 +94,7 @@
     "stylelint:fix": "stylelint \"**/*.{css,scss,sass}\" --fix --allow-empty-input",
     "dev": "npm run build && rollup -w -c ./scripts/dev.js",
     "build": "npm run clean && rollup -c ./scripts/rollup.config.js",
-    "clean": "rimraf dist es lib",
+    "clean": "rimraf dist",
     "clean-typings": "node ./scripts/cleanTypings.js",
     "prepare": "husky install",
     "prerelease": "npm run lint:fix && npm run test:coverage",
