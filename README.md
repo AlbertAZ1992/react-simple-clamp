@@ -94,7 +94,10 @@ const App = () => (
 ReactDOM.render(<App />, document.querySelector('#app'));
 ```
 
-[demo](https://codesandbox.io/s/react-simple-clamp-demo-wnhzi)
+
+### Demo
+
+[![Edit compassionate-lalande-5lxm7](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/react-simple-clamp-demo-sx9sbg)
 
 ## API
 
