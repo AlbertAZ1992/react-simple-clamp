@@ -97,7 +97,7 @@
     "clean": "rimraf dist",
     "clean-typings": "node ./scripts/cleanTypings.js",
     "prepare": "husky install",
-    "prerelease": "npm run lint:fix && npm run test:coverage",
+    "prerelease": "npm run lint:fix && npm run test:coverage && npm run build",
     "release": "standard-version",
     "release-patch": "npm run release -- --release-as patch",
     "release-minor": "npm run release -- --release-as minor",

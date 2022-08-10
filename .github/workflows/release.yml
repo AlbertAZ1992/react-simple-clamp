@@ -34,8 +34,3 @@ jobs:
           release_name: ${{ github.ref }}
           draft: false
           prerelease: false
-
-      - name: Publish to NPM
-        run: npm publish
-        env:
-          GITHUB_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
