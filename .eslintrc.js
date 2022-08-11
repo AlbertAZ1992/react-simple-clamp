@@ -61,6 +61,8 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     ],
+    'no-restricted-syntax': [OFF, 'ForInStatement'],
+    'import/prefer-default-export': OFF,
     'consistent-return': OFF,
     'jsx-a11y/no-static-element-interactions': OFF,
     'jsx-a11y/click-events-have-key-events': OFF,

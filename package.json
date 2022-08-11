@@ -24,7 +24,11 @@
     "react-dom": ">=16.8.0"
   },
   "dependencies": {
-    "html-react-parser": "^1.4.14"
+    "domhandler": "^5.0.3",
+    "html-dom-parser": "^3.0.1",
+    "html-react-parser": "^1.4.14",
+    "react-property": "^2.0.0",
+    "style-to-js": "^1.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
@@ -119,13 +123,14 @@
   "keywords": [
     "clamp",
     "clamping",
+    "clamp lines",
     "clamp text",
     "clamp html",
     "inline html clamp",
-    "react clamp",
-    "clamp lines",
-    "react clamp lines",
-    "react clamping component",
-    "react ellipsis"
+    "html",
+    "text",
+    "ellipsis",
+    "react",
+    "react component"
   ]
 }
