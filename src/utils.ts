@@ -3,6 +3,7 @@ import reactProperty from 'react-property';
 import styleToJS from 'style-to-js';
 import { Element, Text } from 'domhandler';
 
+
 export type DOMNode = Element | Text;
 
 
@@ -182,6 +183,3 @@ export function parseDomNodesToReactNodes(
 
   return result.length === 1 ? result[0] : result;
 }
-
-
-

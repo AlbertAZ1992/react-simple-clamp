@@ -8,8 +8,11 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
 import typescriptEngine from 'typescript';
 import json from '@rollup/plugin-json';
+import summary from 'rollup-plugin-summary';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 import pkg from '../package.json';
+
 
 const outputs = [
   {
@@ -40,7 +43,7 @@ const config = outputs.map((output, i) => {
     plugins: [
       json(),
       commonjs(),
-      nodeResolve({ browser: true }),
+      nodeResolve(),
       typescript({
         tsconfig: path.resolve(__dirname, '..', 'tsconfig.json'),
         useTsconfigDeclarationDir: true,
@@ -56,6 +59,17 @@ const config = outputs.map((output, i) => {
       }),
       progress(),
       terser(),
+      summary({
+        showBrotliSize: true,
+        showMinifiedSize: true,
+        showGzippedSize: true,
+      }),
+      visualizer({
+        emitFile: true,
+        file: 'stats.html',
+        open: true,
+      }),
+      // process.env.NODE_ENV === 'analyze' ? visualizer() : null,
     ],
     external: ['react', 'react-dom'],
   };

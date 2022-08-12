@@ -25,8 +25,7 @@
   },
   "dependencies": {
     "domhandler": "^5.0.3",
-    "html-dom-parser": "^3.0.1",
-    "html-react-parser": "^1.4.14",
+    "htmlparser2": "^8.0.1",
     "react-property": "^2.0.0",
     "style-to-js": "^1.1.1"
   },
@@ -78,8 +77,10 @@
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-progress": "^1.1.2",
     "rollup-plugin-serve": "^2.0.0",
+    "rollup-plugin-summary": "^1.4.3",
     "rollup-plugin-terser": "^6.1.0",
     "rollup-plugin-typescript2": "^0.27.1",
+    "rollup-plugin-visualizer": "^5.7.1",
     "standard-version": "^9.5.0",
     "stylelint": "^13.6.1",
     "stylelint-config-prettier": "^9.0.3",
@@ -97,6 +98,7 @@
     "stylelint": "stylelint \"**/*.{css,scss,sass}\" --allow-empty-input",
     "stylelint:fix": "stylelint \"**/*.{css,scss,sass}\" --fix --allow-empty-input",
     "dev": "npm run build && rollup -w -c ./scripts/dev.js",
+    "analyze": "NODE_ENV=analyze npm run build",
     "build": "npm run clean && rollup -c ./scripts/rollup.config.js",
     "clean": "rimraf dist",
     "clean-typings": "node ./scripts/cleanTypings.js",

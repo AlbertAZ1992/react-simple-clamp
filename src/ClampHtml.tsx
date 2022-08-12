@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import htmlDomParser from 'html-dom-parser';
+import { parseDocument } from 'htmlparser2';
 import { Element, Text } from 'domhandler';
 import { parseDomNodesToReactNodes } from './utils';
 import Clamp from './clamp';
@@ -30,7 +30,7 @@ function parseInlineHtmlToReactNodes(html: string, replace?: (domNode: Text) => 
   if (html.trim() === '') {
     return null;
   }
-  const domNodes = htmlDomParser(html);
+  const domNodes = parseDocument(html).children;
   return parseDomNodesToReactNodes(domNodes as (Element | Text)[], replace);
 
 }
