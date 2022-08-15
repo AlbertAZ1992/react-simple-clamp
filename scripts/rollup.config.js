@@ -58,7 +58,7 @@ const config = outputs.map((output, i) => {
         babelHelpers: 'runtime',
       }),
       progress(),
-      terser(),
+      // terser(),
       summary({
         showBrotliSize: true,
         showMinifiedSize: true,

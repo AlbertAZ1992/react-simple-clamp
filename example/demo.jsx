@@ -8,7 +8,7 @@ const App = () => {
   const [expanded, setExpended] = useState(false);
   return (
     <div>
-      <h2>Clamp Text</h2>
+      {/* <h2>Clamp Text</h2>
       <div style={{width: 400, background: '#f5f5f5', marginBottom: 30}} >
         <Clamp
           content={text}
@@ -41,7 +41,7 @@ const App = () => {
             (clamped) => (<span style={{background: '#61dafb', padding: '0 4px' }} onClick={() => { setExpended(!!clamped) }}>{clamped ? 'open' : 'close'}</span>)
           }
         />
-      </div>
+      </div> */}
 
       <h2>Clamp Html</h2>
       <div style={{width: 200, background: '#f5f5f5', marginBottom: 30}} >

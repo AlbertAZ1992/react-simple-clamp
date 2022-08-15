@@ -1,6 +1,5 @@
 import React from 'react';
 import reactProperty from 'react-property';
-import styleToJS from 'style-to-js';
 import { Element, Text } from 'domhandler';
 
 
@@ -71,10 +70,61 @@ const inlineHtmlTagNames = new Set([
   'wbr',
 ]);
 
-function getStyleProps(style: string) {
+let parseFromTemplate: any;
+if (document) {
+  const template = document.createElement('template');
+  if (template && template.content) {
+
+    parseFromTemplate = (tpl: string) => {
+      template.innerHTML = tpl;
+      return template.content.childNodes;
+    };
+  }  
+}
+
+const parseFromString = (html: string) => {
+  const domParser = new window.DOMParser();
+  const element = domParser.parseFromString(html, 'text/html').querySelector('body');
+  return element ? element.childNodes : ([] as any);
+}
+
+function getStyleProps(styles: string) {
   try {
-    return styleToJS(style, { reactCompat: true });
-  } catch  {
+    return styles
+        .split(';')
+        .filter(style => style.split(':')[0] && style.split(':')[1])
+        .map(style => [
+            style
+                .split(':')[0]
+                .trim()
+                .replace(/^-ms-/, 'ms-')
+                .replace(/-./g, c => c.slice(1).toUpperCase()),
+            style.split(':')[1].trim(),
+        ])
+        .reduce(
+            (styleObj, style) => ({
+                ...styleObj,
+                [style[0]]: style[1],
+            }),
+            {}
+        );
+
+
+    // const frameCSS = style.replace(/(([\w-.]+)\s*[^;]+);?/g, '$1:$2,')
+    // // .replace(/,+$/, '');
+    // const properties = frameCSS.split(', ');
+    // const frameCSSObj: Record<string, string> = {};
+    // properties.forEach(function(property) {
+    //     const cssProp = property.split(':');
+    //     const cssKey = toCamelCase(cssProp[0]);
+    //     const cssValue = cssProp[1].trim();
+    //     frameCSSObj[cssKey] = cssValue;
+    // });
+    // console.log(frameCSSObj);
+    // return frameCSSObj
+
+  } catch (error)  {
+    console.log(error);
     return {};
   }
 }
@@ -122,11 +172,10 @@ function isValideInlineHtmlNode(node: DOMNode) {
     return true;
   }
   if (node.type === 'tag' && node instanceof Element) {
-    inlineHtmlTagNames.has(node.name.toLowerCase());
+    return inlineHtmlTagNames.has(node.name.toLowerCase());
   }
   return false;
 }
-
 
 export function parseDomNodesToReactNodes(
   nodes: DOMNode[], 
@@ -182,4 +231,59 @@ export function parseDomNodesToReactNodes(
   }
 
   return result.length === 1 ? result[0] : result;
+}
+
+function formatAttributes(attributes: NamedNodeMap) {
+  const result: Record<string, string> = {};
+  for (let i = 0; i < attributes.length; i++) {
+    result[attributes[i].name] = attributes[i].value;
+  }
+
+  return result;
+}
+
+export function formatDOMNodes(nodes: NodeListOf<ChildNode>, parent: Element | null = null): DOMNode[] {
+  const result = [];
+  const len = nodes.length;
+  for (let index = 0; index < len; index++) {
+    const node = nodes[index];
+    let current;
+    switch (node.nodeType) {
+      case 1:
+        if (node instanceof HTMLElement && inlineHtmlTagNames.has(node.nodeName.toLowerCase())) {
+          current = new Element(
+            node.nodeName.toLowerCase(),
+            formatAttributes(node.attributes)
+          );
+          current.children = formatDOMNodes(node.childNodes, current);
+          break;
+        }
+        continue;
+      case 3:
+        current = new Text(node.nodeValue || '');
+        break;
+
+      default:
+        continue;
+    }
+
+    const prev = result[index - 1] || null;
+    if (prev) {
+      prev.next = current;
+    }
+    current.parent = parent;
+    current.prev = prev;
+    current.next = null;
+
+    result.push(current);
+  }
+  return result;
+}
+
+export function parseDOMNodes(html: string): NodeListOf<ChildNode> {
+
+  if (parseFromTemplate) {
+    return parseFromTemplate(html);
+  }
+  return parseFromString(html);
 }

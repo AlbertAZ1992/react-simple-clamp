@@ -80,35 +80,37 @@ function useScreenMaxHeight(internalExpanded: boolean, maxHeight: number | strin
   return screenMaxHeight;
 }
 
-function useScreenContent(
-  content: string | string[],
-  renderContent: () => JSX.Element | JSX.Element[],
-  renderClampedContent: (offset: number, ellipsis: string) => JSX.Element | JSX.Element[],
-  offset: number,
-  contentLength: number,
-  ellipsis: string,
-  internalExpanded: boolean,
-): JSX.Element | JSX.Element[] {
-  const [screenContent, setScreenContent] = useState<JSX.Element | JSX.Element[]>(() => renderContent());
+// function useScreenContent(
+//   content: string | string[],
+//   renderContentRef: React.RefObject<HTMLElement>,
+//   renderClampedContentRef: React.RefObject<HTMLElement>,
+//   // renderContent: () => JSX.Element | JSX.Element[],
+//   // renderClampedContent: (offset: number, ellipsis: string) => JSX.Element | JSX.Element[],
+//   offset: number,
+//   contentLength: number,
+//   ellipsis: string,
+//   internalExpanded: boolean,
+// ): JSX.Element | JSX.Element[] {
+//   const [screenContent, setScreenContent] = useState<JSX.Element | JSX.Element[]>(() => renderContent());
 
-  useLayoutEffect(() => {
-    if (!contentLength || internalExpanded) {
-      setScreenContent(renderContent());
-    } else if (offset !== contentLength) {
-      setScreenContent(renderClampedContent(offset, ellipsis));
-    }
-  }, [content, renderContent, renderClampedContent, offset, contentLength, ellipsis, internalExpanded]);
+//   useLayoutEffect(() => {
+//     if (!contentLength || internalExpanded) {
+//       setScreenContent(renderContent());
+//     } else if (offset !== contentLength) {
+//       setScreenContent(renderClampedContent(offset, ellipsis));
+//     }
+//   }, [content, offset, contentLength, ellipsis, internalExpanded]);
 
-  return screenContent;
-}
+//   return screenContent;
+// }
 
-function useSetExpand(expanded: boolean): boolean {
-  const [internalExpanded, setInternalExpanded] = useState<boolean>(expanded);
-  useEffect(() => {
-    setInternalExpanded(expanded);
-  }, [expanded]);
-  return internalExpanded;
-}
+// function useSetExpand(expanded: boolean): boolean {
+//   const [internalExpanded, setInternalExpanded] = useState<boolean>(expanded);
+//   useEffect(() => {
+//     setInternalExpanded(expanded);
+//   }, [expanded]);
+//   return internalExpanded;
+// }
 
 const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> = (properties) => {
   const {
@@ -125,6 +127,8 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
   const tagRef = useRef() as React.RefObject<HTMLDivElement>;
   const contentRef = useRef() as React.RefObject<HTMLElement>;
   const offsetRef = useRef<number>(contentLength);
+  const renderContentRef = useRef<() => JSX.Element | JSX.Element[]>(renderContent);
+  const renderClampedContentRef = useRef<(offset: number, ellipsis: string) => JSX.Element | JSX.Element[]>(renderClampedContent);
 
   const [offset, setOffset] = useState<number>(contentLength);
   const [renderState, setRenderState] = useState<string>(RENDER_STATE.DONE);
@@ -132,16 +136,39 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
   const [renderFillState, setRenderFillState] = useState<string>(RENDER_FILL_STATE.DONE);
   const [needLocationAdd, setNeedLocationAdd] = useState<boolean>(true);
 
-  const internalExpanded = useSetExpand(expanded);
-  const screenContent = useScreenContent(
-    content,
-    renderContent,
-    renderClampedContent,
-    offset,
-    contentLength,
-    ellipsis,
-    internalExpanded,
-  );
+  const [screenContent, setScreenContent] = useState<JSX.Element | JSX.Element[]>(() => renderContent());
+
+  // const internalExpanded = useSetExpand(expanded);
+
+  const [internalExpanded, setInternalExpanded] = useState<boolean>(expanded);
+
+
+
+
+  useEffect(() => {
+    setInternalExpanded(expanded);
+  }, [expanded]);
+
+  // const screenContent = useScreenContent(
+  //   content,
+  //   renderContentRef,
+  //   renderClampedContentRef,
+  //   offset,
+  //   contentLength,
+  //   ellipsis,
+  //   internalExpanded,
+  // );
+
+  useEffect(() => {
+    if (!contentLength || internalExpanded) {
+      setScreenContent(renderContentRef.current());
+      // setInternalExpanded(false);
+    } else if (offset !== contentLength) {
+      setScreenContent(renderClampedContentRef.current(offset, ellipsis));
+    }
+  }, [offset, contentLength, ellipsis, internalExpanded]);
+
+
   const screenMaxHeight = useScreenMaxHeight(internalExpanded, maxHeight);
 
   /** start rendering * */
@@ -172,7 +199,7 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
         if (renderLocateState === RENDER_LOCATE_STATE.ADD) {
           // is cycle render
           setNeedLocationAdd(false);
-          setOffset((prevOffset) => ~~(prevOffset - offsetRef.current));
+          setOffset((prevOffset) => ~~(prevOffset - Math.floor(offsetRef.current)));
         } else {
           setOffset((prevOffset) => ~~(prevOffset / 2));
           offsetRef.current /= 2;
@@ -184,7 +211,7 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
         // need add to reach max-height
         // need add to reach max-lines
         setRenderLocateState(RENDER_LOCATE_STATE.ADD);
-        setOffset((prevOffset) => ~~(prevOffset + offsetRef.current / 2));
+        setOffset((prevOffset) => ~~(prevOffset + Math.floor(offsetRef.current / 2)));
         offsetRef.current /= 2;
       } else {
         setRenderLocateState(RENDER_LOCATE_STATE.DONE);

@@ -82,6 +82,8 @@ module.exports = {
     'no-unused-expressions': OFF,
     'no-useless-constructor': OFF,
     'no-empty-function': OFF,
+    'unicorn/no-reduce': OFF,
+    'unicorn/no-for-loop': OFF,
     'unicorn/no-null': OFF,
     'unicorn/prevent-abbreviations': OFF,
     'unicorn/no-process-exit': OFF,

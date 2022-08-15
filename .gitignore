@@ -18,3 +18,5 @@ lib/
 temp/
 package-lock.json
 pnpm-lock.yaml
+example/*.js
+example/*.js.map

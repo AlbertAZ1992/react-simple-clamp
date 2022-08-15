@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { parseDocument } from 'htmlparser2';
+// import { parseDocument } from 'htmlparser2';
 import { Element, Text } from 'domhandler';
-import { parseDomNodesToReactNodes } from './utils';
+import { parseDomNodesToReactNodes, formatDOMNodes, parseDOMNodes } from './utils';
 import Clamp from './clamp';
 
 export interface ClampInlineHtmlProps {
@@ -22,6 +22,14 @@ const defaultProps: Partial<ClampInlineHtmlProps> = {
   className: '',
 };
 
+const HTML = 'html';
+const HEAD = 'head';
+const BODY = 'body';
+const FIRST_TAG_REGEX = /<([A-Za-z]+\d?)/; // e.g., <h1>
+// match-all-characters in case of newlines (DOTALL)
+// const HEAD_TAG_REGEX = /<head[^]*>/i;
+// const BODY_TAG_REGEX = /<body[^]*>/i;
+
 
 function parseInlineHtmlToReactNodes(html: string, replace?: (domNode: Text) => JSX.Element | Record<string, unknown> | void | undefined | null | false) {
   if (typeof html !== 'string') {
@@ -30,7 +38,26 @@ function parseInlineHtmlToReactNodes(html: string, replace?: (domNode: Text) => 
   if (html.trim() === '') {
     return null;
   }
-  const domNodes = parseDocument(html).children;
+
+  let firstTagName;
+  const match = html.match(FIRST_TAG_REGEX);
+
+  if (match && match[1]) {
+    firstTagName = match[1].toLowerCase();
+  }
+
+
+  switch (firstTagName) {
+    case HTML:
+    case HEAD:
+    case BODY:
+      throw new TypeError('react-simple-clamp only accepts inline html content');
+    default:
+
+  }
+
+  const domNodes =  formatDOMNodes(parseDOMNodes(html));
+
   return parseDomNodesToReactNodes(domNodes as (Element | Text)[], replace);
 
 }
@@ -57,7 +84,7 @@ const ClampInlineHtml: React.FC<ClampInlineHtmlProps> = (properties) => {
 
     return (
       <Fragment>
-        { parseInlineHtmlToReactNodes(content, replace) }
+        {parseInlineHtmlToReactNodes(content, replace)}
         <span>{ellipsis}</span>
         {renderAfter(true)}
       </Fragment>
