@@ -110,7 +110,7 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
     setInternalExpanded(expanded);
   }, [expanded]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!contentLength || internalExpanded) {
       setScreenContent(renderContentRef.current());
       // setInternalExpanded(false);

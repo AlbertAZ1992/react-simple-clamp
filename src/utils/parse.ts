@@ -4,7 +4,7 @@ import { ELEMENTS_NO_TEXT_CHILDREN, } from './constants';
 import { isValideInlineHtmlNode, attributesToProps } from './helper';
 
 
-let parseFromTemplate: any;
+let parseFromTemplate: unknown;
 if (document) {
   const template = document.createElement('template');
   if (template && template.content) {
@@ -82,7 +82,7 @@ export function parseDomNodesToReactNodes(
 
 
 export function parseDOMNodes(html: string): NodeListOf<ChildNode> {
-  if (parseFromTemplate) {
+  if (typeof parseFromTemplate === 'function' && parseFromTemplate) {
     return parseFromTemplate(html);
   }
   return parseFromString(html);
