@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
-// import { parseDocument } from 'htmlparser2';
-import { Element, Text } from 'domhandler';
-import { parseDomNodesToReactNodes, formatDOMNodes, parseDOMNodes } from './utils';
+import { Text } from 'domhandler';
+import { REGEX_HTML, REGEX_HEAD, REGEX_BODY, REGEX_FIRST_TAG } from './utils/constants';
+import { parseDomNodesToReactNodes, parseDOMNodes } from './utils/parse'; 
+import { formatDOMNodes } from './utils/format';
 import Clamp from './clamp';
 
 export interface ClampInlineHtmlProps {
@@ -22,13 +23,6 @@ const defaultProps: Partial<ClampInlineHtmlProps> = {
   className: '',
 };
 
-const HTML = 'html';
-const HEAD = 'head';
-const BODY = 'body';
-const FIRST_TAG_REGEX = /<([A-Za-z]+\d?)/; // e.g., <h1>
-// match-all-characters in case of newlines (DOTALL)
-// const HEAD_TAG_REGEX = /<head[^]*>/i;
-// const BODY_TAG_REGEX = /<body[^]*>/i;
 
 
 function parseInlineHtmlToReactNodes(html: string, replace?: (domNode: Text) => JSX.Element | Record<string, unknown> | void | undefined | null | false) {
@@ -39,27 +33,14 @@ function parseInlineHtmlToReactNodes(html: string, replace?: (domNode: Text) => 
     return null;
   }
 
-  let firstTagName;
-  const match = html.match(FIRST_TAG_REGEX);
-
-  if (match && match[1]) {
-    firstTagName = match[1].toLowerCase();
-  }
-
-
-  switch (firstTagName) {
-    case HTML:
-    case HEAD:
-    case BODY:
-      throw new TypeError('react-simple-clamp only accepts inline html content');
-    default:
-
+  const match = html.match(REGEX_FIRST_TAG);
+  const firstTagName = (match && match[1]) ? match[1].toLowerCase() : undefined;
+  if (firstTagName === REGEX_HTML || firstTagName === REGEX_HEAD || firstTagName === REGEX_BODY) {
+    throw new TypeError('react-simple-clamp only accepts inline html content');
   }
 
   const domNodes =  formatDOMNodes(parseDOMNodes(html));
-
-  return parseDomNodesToReactNodes(domNodes as (Element | Text)[], replace);
-
+  return parseDomNodesToReactNodes(domNodes, replace);
 }
 
 const ClampInlineHtml: React.FC<ClampInlineHtmlProps> = (properties) => {

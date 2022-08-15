@@ -80,38 +80,6 @@ function useScreenMaxHeight(internalExpanded: boolean, maxHeight: number | strin
   return screenMaxHeight;
 }
 
-// function useScreenContent(
-//   content: string | string[],
-//   renderContentRef: React.RefObject<HTMLElement>,
-//   renderClampedContentRef: React.RefObject<HTMLElement>,
-//   // renderContent: () => JSX.Element | JSX.Element[],
-//   // renderClampedContent: (offset: number, ellipsis: string) => JSX.Element | JSX.Element[],
-//   offset: number,
-//   contentLength: number,
-//   ellipsis: string,
-//   internalExpanded: boolean,
-// ): JSX.Element | JSX.Element[] {
-//   const [screenContent, setScreenContent] = useState<JSX.Element | JSX.Element[]>(() => renderContent());
-
-//   useLayoutEffect(() => {
-//     if (!contentLength || internalExpanded) {
-//       setScreenContent(renderContent());
-//     } else if (offset !== contentLength) {
-//       setScreenContent(renderClampedContent(offset, ellipsis));
-//     }
-//   }, [content, offset, contentLength, ellipsis, internalExpanded]);
-
-//   return screenContent;
-// }
-
-// function useSetExpand(expanded: boolean): boolean {
-//   const [internalExpanded, setInternalExpanded] = useState<boolean>(expanded);
-//   useEffect(() => {
-//     setInternalExpanded(expanded);
-//   }, [expanded]);
-//   return internalExpanded;
-// }
-
 const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> = (properties) => {
   const {
     ellipsis = '...',
@@ -135,29 +103,12 @@ const ReactSimpleClamp: React.FC<ReactSimpleClampProps<string | Array<string>>> 
   const [renderLocateState, setRenderLocateState] = useState<string>(RENDER_LOCATE_STATE.DONE);
   const [renderFillState, setRenderFillState] = useState<string>(RENDER_FILL_STATE.DONE);
   const [needLocationAdd, setNeedLocationAdd] = useState<boolean>(true);
-
   const [screenContent, setScreenContent] = useState<JSX.Element | JSX.Element[]>(() => renderContent());
-
-  // const internalExpanded = useSetExpand(expanded);
-
   const [internalExpanded, setInternalExpanded] = useState<boolean>(expanded);
-
-
-
 
   useEffect(() => {
     setInternalExpanded(expanded);
   }, [expanded]);
-
-  // const screenContent = useScreenContent(
-  //   content,
-  //   renderContentRef,
-  //   renderClampedContentRef,
-  //   offset,
-  //   contentLength,
-  //   ellipsis,
-  //   internalExpanded,
-  // );
 
   useEffect(() => {
     if (!contentLength || internalExpanded) {
