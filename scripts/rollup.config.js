@@ -10,7 +10,6 @@ import typescriptEngine from 'typescript';
 import json from '@rollup/plugin-json';
 import summary from 'rollup-plugin-summary';
 import { visualizer } from 'rollup-plugin-visualizer';
-import gzipPlugin from 'rollup-plugin-gzip';
 import pkg from '../package.json';
 
 
@@ -59,18 +58,16 @@ const config = outputs.map((output, i) => {
       }),
       progress(),
       terser(),
-      gzipPlugin(),
       summary({
         showBrotliSize: true,
         showMinifiedSize: true,
         showGzippedSize: true,
       }),
-      visualizer({
+      process.env.NODE_ENV === 'analyze' ? visualizer({
         emitFile: true,
         file: 'stats.html',
         open: true,
-      }),
-      // process.env.NODE_ENV === 'analyze' ? visualizer() : null,
+      }) : null,
     ],
     external: ['react', 'react-dom'],
   };
