@@ -1,0 +1,12 @@
+[
+  {
+    "name": "react-simple-clamp --umd",
+    "path": "dist/index.js",
+    "limit": "22kB"
+  },
+  {
+    "name": "react-simple-clamp --es",
+    "path": "dist/index.es.js",
+    "limit": "22kB"
+  }
+]
