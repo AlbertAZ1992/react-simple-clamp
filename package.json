@@ -94,6 +94,7 @@
     "eslint:fix": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "stylelint": "stylelint \"**/*.{css,scss,sass}\" --allow-empty-input",
     "stylelint:fix": "stylelint \"**/*.{css,scss,sass}\" --fix --allow-empty-input",
+    "size-limit": "size-limit",
     "dev": "npm run build && rollup -w -c ./scripts/dev.js",
     "build": "npm run clean && rollup -c ./scripts/rollup.config.js",
     "clean": "rimraf dist",
