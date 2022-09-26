@@ -76,7 +76,7 @@
     "rollup-plugin-progress": "^1.1.2",
     "rollup-plugin-serve": "^2.0.0",
     "rollup-plugin-terser": "^6.1.0",
-    "rollup-plugin-typescript2": "^0.27.1",
+    "rollup-plugin-typescript2": "^0.34.0",
     "size-limit": "^8.0.1",
     "standard-version": "^9.5.0",
     "stylelint": "^14.10.0",
